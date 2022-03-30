@@ -47,14 +47,13 @@ module internal StateMonad
 
     let push : SM<unit> = 
         S (fun s -> Success ((), {s with vars = Map.empty :: s.vars}))
+    let pop : SM<unit> = S (fun s -> Success ((),{s with vars = s.vars.Tail}))
 
-    let pop : SM<unit> = failwith "Not implemented"      
+    let wordLength : SM<int> = S (fun s -> Success (s.word.Length, s))   
 
-    let wordLength : SM<int> = failwith "Not implemented"      
+    let characterValue (pos : int) : SM<char> = S (fun s -> if (s.word.Length) > pos && pos >= 0 then Success (fst (s.word.Item pos), s) else Failure(IndexOutOfBounds pos))     
 
-    let characterValue (pos : int) : SM<char> = failwith "Not implemented"      
-
-    let pointValue (pos : int) : SM<int> = failwith "Not implemented"      
+    let pointValue (pos : int) : SM<int> = S (fun s -> if (s.word.Length) > pos && pos >= 0 then Success (snd (s.word.Item pos), s) else Failure(IndexOutOfBounds pos))       
 
     let lookup (x : string) : SM<int> = 
         let rec aux =
@@ -71,4 +70,19 @@ module internal StateMonad
               | None   -> Failure (VarNotFound x))
 
     let declare (var : string) : SM<unit> = failwith "Not implemented"   
-    let update (var : string) (value : int) : SM<unit> = failwith "Not implemented"      
+    let update (var : string) (value : int) : SM<unit> =
+        let rec aux (s: Map<string,int> list) (i: int): Map<string,int> list -> (Map<string, int> list) Option =
+            function
+            | []      -> None
+            | m :: ms -> 
+                match Map.tryFind var m with
+                | Some _ when ms.IsEmpty ->
+                    Some (s.GetSlice (Some 0, Some i) @ m.Add (var, value) :: [])
+                | Some _ ->
+                    Some (s.GetSlice (Some 0, Some i) @ m.Add (var, value) :: ms.Tail)
+                | None   -> aux ms (i+1) s 
+
+        S (fun s -> 
+              match aux s.vars 0 s.vars with
+              | Some vars' -> Success ((), {s with vars = vars'})
+              | None   -> Failure (VarNotFound var))

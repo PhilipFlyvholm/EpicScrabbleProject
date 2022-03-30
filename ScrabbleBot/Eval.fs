@@ -4,8 +4,16 @@ module internal Eval
 
     open StateMonad
 
-    let add a b = failwith "Not implemented"      
-    let div a b = failwith "Not implemented"      
+    let add a b =  a >>= fun x -> b >>= fun y -> ret (x+y)
+    let sub a b =  a >>= fun x -> b >>= fun y -> ret (x-y)
+    let div a b = a >>= fun x ->
+        b >>= fun y ->
+            if y <> 0 then ret (x / y) else fail DivisionByZero    
+    let mul a b =  a >>= fun x -> b >>= fun y -> ret (x*y)
+    
+    let modulo a b = a >>= fun x ->
+        b >>= fun y ->
+            if y <> 0 then ret (x % y) else fail DivisionByZero     
 
     type aExp =
         | N of int
@@ -58,11 +66,36 @@ module internal Eval
     let (.>=.) a b = ~~(a .<. b)                (* numeric greater than or equal to *)
     let (.>.) a b = ~~(a .=. b) .&&. (a .>=. b) (* numeric greater than *)    
 
-    let arithEval a : SM<int> = failwith "Not implemented"      
-
-    let charEval c : SM<char> = failwith "Not implemented"      
-
-    let boolEval b : SM<bool> = failwith "Not implemented"
+    let rec arithEval a : SM<int> =
+        match a with
+        | N n -> ret n
+        | V v -> lookup v
+        | WL -> wordLength
+        | PV exp -> arithEval exp >>= pointValue
+        | Add (a, b) -> add (arithEval a) (arithEval b)
+        | Sub (a, b) -> sub (arithEval a) (arithEval b)
+        | Div (a, b) -> div (arithEval a) (arithEval b)
+        | Mul (a, b) -> mul (arithEval a) (arithEval b)
+        | CharToInt cExp -> (charEval cExp) >>= (fun s -> ret (int s))
+        | Mod (a, b) -> modulo (arithEval a) (arithEval b)
+    and charEval c : SM<char> =
+        match c with
+        | C c -> ret c
+        | CV aExp -> (arithEval aExp) >>= characterValue
+        | ToUpper cExp -> (charEval cExp) >>= (fun c -> ret (System.Char.ToUpper c))
+        | ToLower cExp -> (charEval cExp) >>= (fun c -> ret (System.Char.ToLower c))
+        | IntToChar aExp -> (arithEval aExp) >>= (fun i -> ret (char (int '0' + i)))
+    and boolEval b : SM<bool> =
+        match b with
+        | TT -> ret true
+        | FF -> ret false
+        | AEq (aExp1, aExp2) -> arithEval aExp1 >>= (fun a -> arithEval aExp2 >>= (fun b -> ret (a = b)))
+        | ALt (aExp1, aExp2) -> arithEval aExp1 >>= (fun a -> arithEval aExp2 >>= (fun b -> ret (a < b)))
+        | Not exp -> boolEval exp >>= (fun b -> ret (not b))
+        | Conj (bExp1, bExp2) -> boolEval bExp1 >>= (fun a -> boolEval bExp2 >>= (fun b -> ret (a && b)))
+        | IsDigit cExp -> charEval cExp >>= (fun c -> ret (System.Char.IsDigit c))
+        | IsLetter cExp -> charEval cExp >>= (fun c -> ret (System.Char.IsLetter c))
+        | IsVowel cExp -> charEval cExp >>= (fun c -> ret (not ("BCDFGHJKLMNPQRSTVWXYZ".Contains(System.Char.ToUpper(c)))))
 
 
     type stm =                (* statements *)
