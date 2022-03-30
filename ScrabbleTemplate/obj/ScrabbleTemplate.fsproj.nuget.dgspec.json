@@ -1,0 +1,144 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/ScrabbleTemplate.fsproj": {}
+  },
+  "projects": {
+    "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj",
+        "projectName": "YourIdGoesHere",
+        "projectPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj",
+        "packagesPath": "/Users/philipflyvholm/.nuget/packages/",
+        "outputPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/philipflyvholm/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/jesper-bengtson/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "FParsec": {
+              "target": "Package",
+              "version": "[1.1.1, )",
+              "generatePathProperty": true
+            },
+            "FSharp.Core": {
+              "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[6.0.3, )",
+              "generatePathProperty": true
+            },
+            "ScrabbleUtil": {
+              "target": "Package",
+              "version": "[1.0.12, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/ScrabbleTemplate.fsproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/ScrabbleTemplate.fsproj",
+        "projectName": "ScrabbleTemplate",
+        "projectPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/ScrabbleTemplate.fsproj",
+        "packagesPath": "/Users/philipflyvholm/.nuget/packages/",
+        "outputPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/philipflyvholm/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net6.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {},
+          "https://nuget.pkg.github.com/jesper-bengtson/index.json": {}
+        },
+        "frameworks": {
+          "net6.0": {
+            "targetAlias": "net6.0",
+            "projectReferences": {
+              "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj": {
+                "projectPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj"
+              }
+            }
+          }
+        }
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "dependencies": {
+            "FSharp.Core": {
+              "include": "Runtime, Compile, Build, Native, Analyzers, BuildTransitive",
+              "target": "Package",
+              "version": "[6.0.3, )",
+              "generatePathProperty": true
+            },
+            "Oxyphenbutazone": {
+              "target": "Package",
+              "version": "[1.0.11, )",
+              "generatePathProperty": true
+            },
+            "ScrabbleServer": {
+              "target": "Package",
+              "version": "[1.0.19, )",
+              "generatePathProperty": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
