@@ -63,8 +63,8 @@ let main argv =
     //    List.iter (fun str -> ScrabbleUtil.DebugPrint.debugPrint (sprintf "%s\n" str)) incorrectWords
         
     // Uncomment this line to call your client
-    // let players    = [("Your name here", dictionary, YourClientName.Scrabble.startGame)]
-    let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
+    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
+    //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
         
 
     do ScrabbleServer.Comm.startGame 

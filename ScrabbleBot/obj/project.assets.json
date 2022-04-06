@@ -116,7 +116,7 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "ScrabbleUtil/1.0.12": {
+      "ScrabbleUtil/1.0.11": {
         "type": "package",
         "dependencies": {
           "FSharp.Core": "6.0.3",
@@ -360,15 +360,15 @@
         "runtime.json"
       ]
     },
-    "ScrabbleUtil/1.0.12": {
-      "sha512": "KoRZyUdi7qaoXoxahRO0bPDJF/zvg4DhuZDPVBgBT9DiBBQKOcsORDplVonJxRJRkRkK6pDmNr7cUzLclTRx3A==",
+    "ScrabbleUtil/1.0.11": {
+      "sha512": "/zIKXWeAQmfKHvbqFwWDga3OeK+7ExoUjnGEitea1Qft3/6fHn+CgUXLXliSTFODxB+q9lzelO+BXBTc1y2wWw==",
       "type": "package",
-      "path": "scrabbleutil/1.0.12",
+      "path": "scrabbleutil/1.0.11",
       "files": [
         ".nupkg.metadata",
         "lib/net6.0/ScrabbleUtil.dll",
         "lib/net6.0/ScrabbleUtil.xml",
-        "scrabbleutil.1.0.12.nupkg.sha512",
+        "scrabbleutil.1.0.11.nupkg.sha512",
         "scrabbleutil.nuspec"
       ]
     },
@@ -914,7 +914,7 @@
     "net6.0": [
       "FParsec >= 1.1.1",
       "FSharp.Core >= 6.0.3",
-      "ScrabbleUtil >= 1.0.12"
+      "ScrabbleUtil >= 1.0.11"
     ]
   },
   "packageFolders": {
@@ -963,7 +963,7 @@
           },
           "ScrabbleUtil": {
             "target": "Package",
-            "version": "[1.0.12, )",
+            "version": "[1.0.11, )",
             "generatePathProperty": true
           }
         },
@@ -985,5 +985,13 @@
         "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Your request could not be authenticated by the GitHub Packages service. Please ensure your access token is valid and has the appropriate scopes configured."
+    }
+  ]
 }

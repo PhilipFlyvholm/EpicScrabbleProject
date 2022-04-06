@@ -262,7 +262,7 @@
         "dependencies": {
           "FParsec": "1.1.1",
           "FSharp.Core": "6.0.3",
-          "ScrabbleUtil": "1.0.12"
+          "ScrabbleUtil": "1.0.11"
         },
         "compile": {
           "bin/placeholder/YourIdGoesHere.dll": {}

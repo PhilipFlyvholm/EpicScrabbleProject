@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "EajVgAjcypZeXKrGGH6GNGoFc/UMIaA/5Q8F2ce0LMYLc3VpBEh3FP52ooD2xU9YxMhoQFfNMqtW88XQVNZv3A==",
+  "dgSpecHash": "72jxktmmJlHm/tbLxDrQGdKaO6T9cS29IHD2TFMNc97cjBKuVJhY7t3X51ufuWoygqFfA5LpqekBwB8jg/FiDg==",
   "success": true,
   "projectFilePath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj",
   "expectedPackageFiles": [
@@ -10,7 +10,7 @@
     "/Users/philipflyvholm/.nuget/packages/fspickler/5.3.2/fspickler.5.3.2.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg.sha512",
-    "/Users/philipflyvholm/.nuget/packages/scrabbleutil/1.0.12/scrabbleutil.1.0.12.nupkg.sha512",
+    "/Users/philipflyvholm/.nuget/packages/scrabbleutil/1.0.11/scrabbleutil.1.0.11.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.io/4.3.0/system.io.4.3.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.reflection/4.3.0/system.reflection.4.3.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.reflection.emit.ilgeneration/4.3.0/system.reflection.emit.ilgeneration.4.3.0.nupkg.sha512",
@@ -20,5 +20,12 @@
     "/Users/philipflyvholm/.nuget/packages/system.text.encoding/4.3.0/system.text.encoding.4.3.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.threading.tasks/4.3.0/system.threading.tasks.4.3.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Your request could not be authenticated by the GitHub Packages service. Please ensure your access token is valid and has the appropriate scopes configured."
+    }
+  ]
 }

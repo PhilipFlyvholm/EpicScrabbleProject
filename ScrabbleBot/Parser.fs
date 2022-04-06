@@ -5,6 +5,7 @@
 
 module internal Parser
 
+    open StateMonad
     open ScrabbleUtil // NEW. KEEP THIS LINE.
     open System
     open Eval
@@ -73,7 +74,6 @@ module internal Parser
     let ModParse = binop (pchar '%') AtomParse ProdParse |>> Mod <?> "Mod"
     let CharToIntParse = unop pCharToInt (parenthesise CharParse) |>> CharToInt  <?> "CharToInt"
     do pref := choice [MulParse;DivParse;ModParse; CharToIntParse; AtomParse]
-
     let NParse   = pint32 |>> N <?> "Int"
     let ParParse = parenthesise TermParse
     let PointValueParse = unop (pPointValue) ParParse |>> PV <?> "Pointvalue"
@@ -131,18 +131,16 @@ module internal Parser
     (* The rest of your parser goes here *)
 
     type word   = (char * int) list
-    type square = Map<int, word -> int -> int -> int>
+    type squareFun = word -> int -> int -> Result<int, Error>
+    type square = Map<int, squareFun>
 
-    let parseSquareFun _ = failwith "not implemented"
-
-    let parseBoardFun _ = failwith "not implemented"
-
-    type boardFun = coord -> square option
+    type boardFun2 = coord -> Result<square option, Error>
     type board = {
         center        : coord
         defaultSquare : square
-        squares       : boardFun
+        squares       : boardFun2
     }
-
-    let parseBoardProg (bp : boardProg) : board = failwith "not implemented"
+    
+    // Default (unusable) board in case you are not implementing a parser for the DSL.
+    let mkBoard : boardProg -> board = fun _ -> {center = (0,0); defaultSquare = Map.empty; squares = fun _ -> Success (Some Map.empty)}
 

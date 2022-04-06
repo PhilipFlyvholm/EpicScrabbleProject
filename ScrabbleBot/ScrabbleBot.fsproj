@@ -32,7 +32,7 @@ Group name: &lt;Your group name goes here&gt; (optional since this is hosted in 
 
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.1" />
-    <PackageReference Include="ScrabbleUtil" Version="1.0.12" />
+    <PackageReference Include="ScrabbleUtil" Version="1.0.11" />
     <PackageReference Update="FSharp.Core" Version="6.0.3" />
   </ItemGroup>
 

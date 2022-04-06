@@ -45,6 +45,7 @@ module internal Eval
        | Conj of bExp * bExp  (* boolean conjunction *)
 
        | IsVowel of cExp      (* check for vowel *)
+       | IsConsonant of cExp (* check for Consonant *)
        | IsLetter of cExp     (* check for letter *)
        | IsDigit of cExp      (* check for digit *)
 
@@ -96,6 +97,7 @@ module internal Eval
         | IsDigit cExp -> charEval cExp >>= (fun c -> ret (System.Char.IsDigit c))
         | IsLetter cExp -> charEval cExp >>= (fun c -> ret (System.Char.IsLetter c))
         | IsVowel cExp -> charEval cExp >>= (fun c -> ret (not ("BCDFGHJKLMNPQRSTVWXYZ".Contains(System.Char.ToUpper(c)))))
+        | IsConsonant cExp -> charEval cExp >>= (fun c -> ret ("BCDFGHJKLMNPQRSTVWXYZ".Contains(System.Char.ToUpper(c))))
 
 
     type stm =                (* statements *)
