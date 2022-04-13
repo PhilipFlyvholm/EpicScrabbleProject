@@ -62,7 +62,6 @@ module Scrabble =
 
         let rec aux (st : State.state) =
             Print.printHand pieces (State.hand st)
-
             // remove the force print when you move on from manual input (or when you have learnt the format)
             forcePrint "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
             let input =  System.Console.ReadLine()
@@ -77,7 +76,14 @@ module Scrabble =
             match msg with
             | RCM (CMPlaySuccess(ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
-                let st' = st // This state needs to be updated
+                 // This state needs to be updated
+                let newHand = (List.fold (fun acc ((pos1, pos2), (id,(c,v))) -> (
+                                    MultiSet.removeSingle id acc
+                              )) st.hand move) |>
+                              List.fold (fun acc (id, amount) -> (MultiSet.add id amount acc))
+                              <| newPieces
+                List.fold (fun acc (a,b) -> (debugPrint $"{a}/{b}\n")) () newPieces
+                let st' = State.mkState st.board st.dict st.playerNumber newHand
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
