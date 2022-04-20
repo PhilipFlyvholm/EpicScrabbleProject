@@ -1,6 +1,7 @@
 ﻿// Learn more about F# at http://fsharp.org
 
 open System
+open ScrabbleBot
 
 let time f =
     let start = System.DateTime.Now
@@ -22,7 +23,7 @@ let spawnMultiples name dict bot =
 let main argv =
     ScrabbleUtil.DebugPrint.toggleDebugPrint true // Change to false to supress debug output
 
-    System.Console.BackgroundColor <- System.ConsoleColor.White
+    System.Console.BackgroundColor <- System.ConsoleColor.Black
     System.Console.ForegroundColor <- System.ConsoleColor.Black
     System.Console.Clear()
 
@@ -48,8 +49,7 @@ let main argv =
 
     let dictAPI =
         // Uncomment if you have implemented a dictionary. last element None if you have not implemented a GADDAG
-        // Some (Dictionary.empty, Dictionary.insert, Dictionary.step, Some Dictionary.reverse) 
-        None
+        Some (Dictionary2.empty, Dictionary2.insert, Dictionary2.step, None) 
 
     let (dictionary, time) = time (fun () -> ScrabbleUtil.Dictionary.mkDict words dictAPI)
 
@@ -66,7 +66,6 @@ let main argv =
     let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
     //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
         
-
     do ScrabbleServer.Comm.startGame 
           board dictionary handSize timeout tiles seed port players
     
