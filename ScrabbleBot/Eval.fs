@@ -121,10 +121,49 @@ module internal Eval
         member this.Combine(a, b) = a >>= (fun _ -> b)
         
     let prog = new StateBuilder()
+    
+    let binop2 func a b =
+        prog { let! x = a
+               let! y = b
+               return func x y }
 
-    let arithEval2 a = failwith "Not implemented"
-    let charEval2 c = failwith "Not implemented"
-    let rec boolEval2 b = failwith "Not implemented"
+    let arithEval2 a : SM<int> =
+        match a with
+        | N n -> prog {return n}
+        | V x -> prog {return! lookup x}
+        | WL -> prog {return! wordLength}
+        | PV ax -> prog {
+            let! a = arithEval ax
+            return! pointValue a
+            }    
+        | Add (a1, a2) -> binop2 ( + ) (arithEval a1) (arithEval a2)
+        | Sub (a1, a2) -> binop2 ( - ) (arithEval a1) (arithEval a2)
+        | Mul (a1, a2) -> binop2 ( * ) (arithEval a1) (arithEval a2)
+        | Div (a1, a2) -> prog {
+            let! a = arithEval a1
+            let! b = arithEval a2
+            if b <> 0 then
+                return (a / b)
+            else
+                return! fail DivisionByZero
+            }
+        | Mod (a1, a2) ->
+            prog {
+                let! a = arithEval a1
+                let! b = arithEval a2
+                if b <> 0 then
+                    return (a % b)
+                else
+                    return! fail DivisionByZero
+            }
+             
+        | CharToInt cxp -> prog {
+                let! r = charEval cxp
+                return int r
+            }
+        
+    let charEval2 c = charEval c
+    let rec boolEval2 b = boolEval b
 
     let stmntEval2 stm = failwith "Not implemented"
 
@@ -132,15 +171,26 @@ module internal Eval
 
     type word = (char * int) list
     type squareFun = word -> int -> int -> Result<int, Error>
+    type square = Map<int, squareFun>
 
-    let stmntToSquareFun stm = failwith "Not implemented"
-
+    let stmntToSquareFun (stm : stm) =
+        fun (wrd: word) (pos: int) (acc: int) ->
+            stmntEval stm >>>= lookup "_result_" |> evalSM (
+                mkState [("_pos_", pos); ("_acc_", acc); ("_result_", 0)] wrd ["_pos_"; "_acc_"; "_result_"]
+            )
 
     type coord = int * int
 
     type boardFun = coord -> Result<squareFun option, Error> 
+    type boardFun2 = coord -> StateMonad.Result<square option, StateMonad.Error>
 
-    let stmntToBoardFun stm m = failwith "Not implemented"
+    let stmntToBoardFun stm (m : Map<int, 'a>) : boardFun2 =
+        fun (x,y) ->
+            stmntEval stm >>>= lookup "_result_" |> evalSM (
+                mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
+                function
+                | Success numbr -> if Map.containsKey numbr m then Success(Some m.[numbr]) else Success None
+                | Failure erro -> Failure erro
 
     type board = {
         center        : coord
