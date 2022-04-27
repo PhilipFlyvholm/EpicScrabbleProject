@@ -66,9 +66,9 @@ module State =
 module Scrabble =
     open System.Threading
 
+    //Returns ((charId * (char * pointValue)) list * wordValue) list
     let findMove (st: State.state) (pieces: Map<uint32, 'a>) =
 
-        //TODO How do we handle point calculation?
         let rec aux (dict: Dictionary.Dict) (chrList: MultiSet.MultiSet<uint32>) (currentWord : ((uint32 * (char * int)) list * int)) =
              MultiSet.fold
                     (fun acc id amount -> //TODO How should amount be handled?
@@ -115,8 +115,6 @@ module Scrabble =
             //let input = System.Console.ReadLine()
             //let move = RegEx.parseMove input
             let move = moves.Head
-
-
 
             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
             send cstream (SMPlay move)

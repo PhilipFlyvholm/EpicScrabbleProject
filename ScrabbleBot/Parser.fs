@@ -129,6 +129,8 @@ module internal Parser
     do stmntRef2 := choice [assignParse; declareParse;ifThenElseParse;ifThenParse;curlyBracketParse;whileDoParse]
 
     (* The rest of your parser goes here *)
+    //TODO do we need to add more parser stuff here?
+    let stmntParse = StmntParse1
 
     type word   = (char * int) list
     type squareFun = word -> int -> int -> Result<int, Error>
@@ -141,6 +143,30 @@ module internal Parser
         squares       : boardFun2
     }
     
-    // Default (unusable) board in case you are not implementing a parser for the DSL.
-    let mkBoard : boardProg -> board = fun _ -> {center = (0,0); defaultSquare = Map.empty; squares = fun _ -> Success (Some Map.empty)}
+    let parseSquareProg (sqp: squareProg) : square =
+        Map.map (fun priority str -> stmntToSquareFun (getSuccess(run stmntParse str))) sqp
+        
+    let stmntToBoardFun stm (m : Map<int, 'a>) : boardFun2 =
+        fun (x,y) ->
+            stmntEval stm >>>= lookup "_result_" |> evalSM (
+                mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
+                function
+                | Success numbr -> if Map.containsKey numbr m then Success(Some m.[numbr]) else Success None
+                | Failure erro -> Failure erro
+                
+    let parseBoardProg = run stmntParse >> getSuccess >> stmntToBoardFun
 
+    // Default (unusable) board in case you are not implementing a parser for the DSL.
+    let mkBoard : boardProg -> board =
+        
+        (fun (bp : boardProg) ->
+            let m = bp.squares
+            let m2 = Map.map (fun _ squareProg -> parseSquareProg squareProg) m
+            let defaultSqr = Map.find bp.usedSquare m
+            
+            {
+                center = bp.center
+                defaultSquare = parseSquareProg defaultSqr
+                squares = parseBoardProg bp.prog m2
+            }            
+        )
