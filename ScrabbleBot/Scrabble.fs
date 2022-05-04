@@ -50,18 +50,21 @@ module State =
         { board: Parser.board
           dict: ScrabbleUtil.Dictionary.Dict
           playerNumber: uint32
-          hand: MultiSet.MultiSet<uint32> }
+          hand: MultiSet.MultiSet<uint32>
+          wordMap: Map<coord, (uint32 * char)>}
 
-    let mkState b d pn h =
+    let mkState b d pn h wm =
         { board = b
           dict = d
           playerNumber = pn
-          hand = h }
+          hand = h
+          wordMap = wm}
 
     let board st = st.board
     let dict st = st.dict
     let playerNumber st = st.playerNumber
     let hand st = st.hand
+    let wordMap st = st.wordMap
 
 module Scrabble =
     open System.Threading
@@ -94,7 +97,17 @@ module Scrabble =
             
         aux st.dict st.hand (List.empty, 0)
         
-    
+    let findBoardMoves (st: State.state) (pieces: Map<uint32, 'a>) =
+       Map.fold (fun acc (x,y) (id, chr) -> (
+                            //let seqChr = seq {(chr, 0)}
+                            //let cPieces = Map.add id seqChr pieces
+                            let cPieces = Map.add id (Set.add (chr, 0) Set.empty) pieces
+                            
+                            match Map.tryFind (x,y) acc with
+                            | Some v -> Map.add (x,y) (v @ findMove st cPieces) acc
+                            | None -> Map.add (x,y) (findMove st cPieces) acc
+                            
+                )) Map.empty st.wordMap
         
     let playGame cstream pieces (st: State.state) =
 
@@ -104,18 +117,33 @@ module Scrabble =
             forcePrint
                 "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
 
-            let result = findMove st pieces
-            List.fold (fun acc str ->
-                            debugPrint (sprintf "%A \n" str)
-                        ) () result[0..10]
-            let moves = List.map (fun word ->
-                                    List.mapi (fun i word -> (0,i),word) (fst(word))
-                                ) result
+            let moves = if st.wordMap.Count = 0 then
+                            let result = findMove st pieces
+                            List.map (fun word ->
+                                            List.mapi (fun i word -> (0,i),word) (fst(word))
+                                        ) result
+                        else
+                            let result = findBoardMoves st pieces
+                            Map.fold (fun acc (x,y) words ->
+                                            (List.fold (fun innerAcc word ->
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                
+                                                innerAcc @ List.mapi (fun i word2 -> (x,y + i), word2) (fst(word))
+                                            ) List.empty words) :: acc
+                                        ) List.empty result
+            
+            //List.fold (fun acc str ->
+              //              debugPrint (sprintf "%A \n" str)
+                //        ) () result[0..10]
 
             //let input = System.Console.ReadLine()
             //let move = RegEx.parseMove input
             let move = moves.Head
-
+            
             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
             send cstream (SMPlay move)
 
@@ -128,13 +156,15 @@ module Scrabble =
                 // This state needs to be updated
                 let st' =
                     (List.fold
-                        (fun (acc: State.state) (coords, (id, (c, v))) ->
+                        (fun (acc: State.state) (coords, (id, (chr, valu))) ->
                             (
                              //Fold through pieces placed
                              let hand' = MultiSet.removeSingle id acc.hand
+                             let wordMap' = Map.add coords (id, chr) acc.wordMap
+                             
                              //TODO UPDATE BOARD
                              //TODO ADD SCORE TO STATE
-                             State.mkState acc.board acc.dict acc.playerNumber hand'))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap'))
                         st
                         ms)
                     |> List.fold
@@ -142,7 +172,7 @@ module Scrabble =
                             (
                              //fold through pieces given
                              let hand' = MultiSet.add id amount acc.hand
-                             State.mkState acc.board acc.dict acc.playerNumber hand'))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap))
                     <| newPieces
 
                 aux st'
@@ -199,4 +229,4 @@ module Scrabble =
         let handSet =
             List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
 
-        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet)
+        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty)
