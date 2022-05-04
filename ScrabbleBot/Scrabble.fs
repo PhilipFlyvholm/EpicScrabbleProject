@@ -120,21 +120,15 @@ module Scrabble =
             let moves = if st.wordMap.Count = 0 then
                             let result = findMove st pieces
                             List.map (fun word ->
-                                            List.mapi (fun i word -> (0,i),word) (fst(word))
-                                        ) result
+                                List.mapi (fun i word -> (0,i),word) (fst(word))
+                            ) result
                         else
                             let result = findBoardMoves st pieces
                             Map.fold (fun acc (x,y) words ->
-                                            (List.fold (fun innerAcc word ->
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                
-                                                innerAcc @ List.mapi (fun i word2 -> (x,y + i), word2) (fst(word))
-                                            ) List.empty words) :: acc
-                                        ) List.empty result
+                                (List.fold (fun innerAcc word ->
+                                    innerAcc @ List.mapi (fun i word2 -> (x,y + i), word2) (fst(word))
+                                ) List.empty words) :: acc
+                            ) List.empty result
             
             //List.fold (fun acc str ->
               //              debugPrint (sprintf "%A \n" str)
@@ -156,7 +150,7 @@ module Scrabble =
                 // This state needs to be updated
                 let st' =
                     (List.fold
-                        (fun (acc: State.state) (coords, (id, (chr, valu))) ->
+                        (fun (acc: State.state) (coords, (id, (chr, value))) ->
                             (
                              //Fold through pieces placed
                              let hand' = MultiSet.removeSingle id acc.hand
