@@ -163,7 +163,6 @@ module internal Parser
             let m = bp.squares
             let m2 = Map.map (fun _ squareProg -> parseSquareProg squareProg) m
             let defaultSqr = Map.find bp.usedSquare m
-            
             {
                 center = bp.center
                 defaultSquare = parseSquareProg defaultSqr

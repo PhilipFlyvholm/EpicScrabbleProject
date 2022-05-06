@@ -5,10 +5,10 @@
   },
   "projects": {
     "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "restore": {
         "projectUniqueName": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj",
-        "projectName": "YourIdGoesHere",
+        "projectName": "TheCheaterBot",
         "projectPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/ScrabbleBot.fsproj",
         "packagesPath": "/Users/philipflyvholm/.nuget/packages/",
         "outputPath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleBot/obj/",
@@ -20,8 +20,7 @@
           "net6.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://nuget.pkg.github.com/jesper-bengtson/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
@@ -66,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.202/RuntimeIdentifierGraph.json"
         }
       }
     },
@@ -86,8 +85,7 @@
           "net6.0"
         ],
         "sources": {
-          "https://api.nuget.org/v3/index.json": {},
-          "https://nuget.pkg.github.com/jesper-bengtson/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
@@ -136,7 +134,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.101/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.202/RuntimeIdentifierGraph.json"
         }
       }
     }
