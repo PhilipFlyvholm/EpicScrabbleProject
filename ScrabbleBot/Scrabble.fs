@@ -81,7 +81,9 @@ module Scrabble =
                 | Down -> (x,y+1)
                 | Left -> (x-1,y)
                 | Right -> (x+1,y)
+            
             let newLetter = Map.tryFind newCoord st.wordMap
+            
             match newLetter with
             | Some (_,c) ->
                 aux (fun x ->
@@ -94,37 +96,41 @@ module Scrabble =
         aux id coord st.dict
         
     //Returns ((charId * (char * pointValue)) list * wordValue) list
-    let findMove (st: State.state) (pieces: Map<uint32, 'a>) (dir:direction) (startCoord:coord) (startDict : Dictionary.Dict) =
+    let findMove (st : State.state) (pieces : Map<uint32, 'a>) (dir : direction) (startCoord : coord) (startDict : Dictionary.Dict) =
 
         let rec aux (dict: Dictionary.Dict) (chrList: MultiSet.MultiSet<uint32>) (currentItem : ((coord * uint32 * (char * int)) list) * int) ((x,y):coord) =
              MultiSet.fold
                     (fun acc id amount -> //TODO How should amount be handled?
                         
+                        //Figure out what piece we have
                         let set = (Map.find id pieces) |> Seq.head
-                        
                         let chr = set |> fst
                         let pointValue = set |> snd
-                        let nextCoord:coord =
+                        
+                        let nextCoord : coord =
                             match dir with
                             | Up -> (x,y-1) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
                             | Left -> (x-1,y) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
                             | Right -> (x+1,y)
                             | Down -> (x,y+1)
+                           
                         match Map.tryFind nextCoord st.wordMap with
-                        | Some _ -> acc //Can't go further this direction
-                        | None -> 
-                            let innerDict = Dictionary.step chr dict
-                            let newChrList = MultiSet.removeSingle id chrList
-                            match innerDict with
-                            | Some (b, newDict) ->
-                                let currentWord = fst(currentItem)
-                                let currentScore = snd(currentItem)
-                                let newWord = (currentWord@[(x,y), id, (chr, pointValue)], currentScore + pointValue)
-                                if b then
-                                    newWord::acc@(aux newDict newChrList newWord nextCoord)
-                                else
-                                    acc@(aux newDict newChrList newWord nextCoord)
-                            | None -> acc
+                            | Some _ -> acc //Can't go further this direction
+                            | None -> 
+                                let innerDict = Dictionary.step chr dict
+                                let newChrList = MultiSet.removeSingle id chrList
+                                
+                                match innerDict with
+                                | Some (isFullWord, newDict) ->
+                                    let currentWord = fst(currentItem)
+                                    let currentScore = snd(currentItem)
+                                    let newWord = (currentWord@[(x,y), id, (chr, pointValue)], currentScore + pointValue)
+                                    
+                                    if isFullWord then
+                                        newWord::acc@(aux newDict newChrList newWord nextCoord)
+                                    else
+                                        acc@(aux newDict newChrList newWord nextCoord)
+                                | None -> acc
                     )
                     List.empty
                     chrList
@@ -132,11 +138,7 @@ module Scrabble =
         aux startDict st.hand (List.empty, 0) startCoord
         
     let findBoardMoves (st: State.state) (pieces: Map<uint32, 'a>) =
-       Map.fold (fun acc (x,y) (id, chr) -> (
-                            //let seqChr = seq {(chr, 0)}
-                            //let cPieces = Map.add id seqChr pieces
-                            //let cPieces = Map.add id (Set.add (chr, 0) Set.empty) pieces
-                            
+       Map.fold (fun acc (x,y) (id, chr) -> (                         
                             //If we want to look right then we need to find the letters on left first
                             let rightDict = findCurrentWordInDirection (x,y) st Left 
                            //If we want to look down then we need to find the letters on up first
@@ -148,21 +150,18 @@ module Scrabble =
                             let downAcc =  match (Dictionary.step chr downDict) with
                                             | Some (_, dict) -> findMove st pieces Down (x,y+1) dict 
                                             | None -> acc
-                            rightAcc @ downAcc
-                            //match Map.tryFind (x,y) acc with
-                            //| Some v -> Map.add (x,y) (v @ findMove st cPieces Right (x,y) @ findMove st cPieces Down (x,y)) acc
-                            //| None -> Map.add (x,y) (findMove st cPieces Right (x,y) @ findMove st cPieces Down (x,y)) acc
-                            
+                            rightAcc @ downAcc                        
                             
                 )) List.empty st.wordMap
         
     let playGame cstream pieces (st: State.state) =
 
         let rec aux (st: State.state) =
-            Print.printHand pieces (State.hand st)
+            forcePrint "Current hand: \n"
+            Print.printHand pieces (st.hand)
             // remove the force print when you move on from manual input (or when you have learnt the format)
-            forcePrint
-                "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
+            //forcePrint
+            //    "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
             
             let moves = if st.wordMap.Count = 0 then
                             let result = findMove st pieces Right (0,0) st.dict
@@ -171,15 +170,12 @@ module Scrabble =
                             ) result
                         else
                             let result = findBoardMoves st pieces
+                            
+                            forcePrint("Result is: " + result.ToString())
+                            
                             List.map (fun (item, score) ->
                                 List.map (fun (coord, id, letters) -> coord, (id, letters)) item
                             ) result
-                            (*List.fold (fun acc (x,y) words ->
-                                (List.fold (fun innerAcc (item, score) ->
-                                    let word = List.map (fun (coord, id, letters) -> coord, (id, letters)) item
-                                    innerAcc @ word
-                                ) List.empty words) :: acc
-                            ) List.empty result*)
             
             
             List.fold (fun acc str ->
@@ -190,8 +186,12 @@ module Scrabble =
                         ) () moves[0..10]
 
             
-            //let move = RegEx.parseMove input
-            let move = moves.Head
+            let move =
+                if moves.Length > 0 then
+                    moves[moves.Length-1]
+                else
+                    []
+                    
             let printableWord =
                 (List.fold
                     (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
@@ -206,8 +206,13 @@ module Scrabble =
                 ()
             
             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
-            send cstream (SMPlay move)
-
+            let removedTiles = st.hand
+            if moves.Length > 0 then
+                send cstream (SMPlay move)
+            else
+                 forcePrint "No legal moves!"
+                 send cstream (SMChange (MultiSet.toList (st.hand)))
+            
             let msg = recv cstream
             debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
 
@@ -236,6 +241,14 @@ module Scrabble =
                              State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap))
                     <| newPieces
 
+                aux st'
+            | RCM (CMChangeSuccess (newTiles)) ->
+                let handMinusTiles = MultiSet.subtract removedTiles st.hand
+                
+                let newHand = List.fold (fun acc tile -> MultiSet.addSingle (fst tile) acc) handMinusTiles newTiles
+                
+                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap
+                
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
