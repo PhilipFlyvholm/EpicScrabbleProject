@@ -51,14 +51,16 @@ module State =
           dict: ScrabbleUtil.Dictionary.Dict
           playerNumber: uint32
           hand: MultiSet.MultiSet<uint32>
-          wordMap: Map<coord, (uint32 * char)>}
+          wordMap: Map<coord, (uint32 * char)>
+          drawableTiles: uint32}
 
-    let mkState b d pn h wm =
+    let mkState b d pn h wm dt =
         { board = b
           dict = d
           playerNumber = pn
           hand = h
-          wordMap = wm}
+          wordMap = wm
+          drawableTiles = dt}
 
     let board st = st.board
     let dict st = st.dict
@@ -256,7 +258,10 @@ module Scrabble =
                 send cstream (SMPlay move)
             else
                  forcePrint "No legal moves!"
-                 send cstream (SMChange (MultiSet.toList (st.hand)))
+                 if (MultiSet.size st.hand < st.drawableTiles) then
+                    send cstream (SMChange (MultiSet.toList st.hand))
+                 else
+                    send cstream (SMChange ((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)]) )
             
             let msg = recv cstream
             debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
@@ -274,7 +279,7 @@ module Scrabble =
                              let wordMap' = Map.add coords (id, chr) acc.wordMap
                              
                              //TODO ADD SCORE TO STATE
-                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap'))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap' acc.drawableTiles))
                         st
                         ms)
                     |> List.fold
@@ -282,7 +287,7 @@ module Scrabble =
                             (
                              //fold through pieces given
                              let hand' = MultiSet.add id amount acc.hand
-                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap acc.drawableTiles))
                     <| newPieces
 
                 aux st'
@@ -291,7 +296,7 @@ module Scrabble =
                 
                 let newHand = List.fold (fun acc tile -> MultiSet.addSingle (fst tile) acc) handMinusTiles newTiles
                 
-                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap
+                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap st.drawableTiles
                 
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
@@ -301,7 +306,7 @@ module Scrabble =
                             (fun (acc: State.state) (coords, (id, (c, v))) ->
                                 (
                                     //Fold through pieces placed
-                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand acc.wordMap
+                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand acc.wordMap acc.drawableTiles
                                 )
                             ) st ms
                 
@@ -312,6 +317,9 @@ module Scrabble =
                 aux st'
             | RCM (CMGameOver _) -> ()
             | RCM a -> failwith (sprintf "not implmented: %A" a)
+            | RGPE [(GPENotEnoughPieces (changeTiles, availableTiles))] ->
+                let st' = State.mkState st.board st.dict st.playerNumber st.hand st.wordMap availableTiles
+                aux st'
             | RGPE err ->
                 printfn "Gameplay Error:\n%A" err
                 aux st
@@ -354,4 +362,4 @@ module Scrabble =
         let handSet =
             List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
 
-        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty)
+        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty 100u)
