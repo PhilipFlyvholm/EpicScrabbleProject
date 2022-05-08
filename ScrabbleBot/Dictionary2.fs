@@ -15,20 +15,20 @@ module ScrabbleBot.Dictionary2
         
         | Leaf b ->
             let newDict = innerDict()
-            let c = s.[0]
-            newDict.[c] <- insert s.[1..] (empty())
+            let c = s[0]
+            newDict[c] <- insert s[1..] (empty())
             Node(b, newDict)
             
         | Node(b, dict) ->
-            let c = s.[0]
+            let c = s[0]
             
             match dict.TryGetValue c with
             | (true, valu) ->
-                dict.[c] <- insert s.[1..] valu
+                dict[c] <- insert s[1..] valu
                 Node(b, dict)
                 
             | (false, _) ->
-                dict.[c] <- insert s.[1..] (empty())
+                dict[c] <- insert s[1..] (empty())
                 Node(b, dict)
             
     let rec lookup (s: string) =
@@ -37,8 +37,8 @@ module ScrabbleBot.Dictionary2
         | Leaf _ -> false
         | Node (b, _) when s.Length = 0 -> b
         | Node(_, dict) ->
-            match dict.TryGetValue s.[0] with
-            | (true, valu) -> lookup s.[1..] valu
+            match dict.TryGetValue s[0] with
+            | (true, valu) -> lookup s[1..] valu
             | (false, _) -> false
     
     let step (c: char) =
