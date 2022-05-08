@@ -42,16 +42,16 @@ module Print =
 
 module State =
     // Make sure to keep your state localised in this module. It makes your life a whole lot easier.
-    // Currently, it only keeps track of your hand, your player numer, your board, and your dictionary,
+    // Currently, it only keeps track of your hand, your player number, your board, and your dictionary,
     // but it could, potentially, keep track of other useful
     // information, such as number of players, player turn, etc.
 
     type state =
         { board: Parser.board
-          dict: ScrabbleUtil.Dictionary.Dict
+          dict: Dictionary.Dict
           playerNumber: uint32
           hand: MultiSet.MultiSet<uint32>
-          wordMap: Map<coord, (uint32 * char)>
+          wordMap: Map<coord, uint32 * char>
           drawableTiles: uint32}
 
     let mkState b d pn h wm dt =
@@ -69,8 +69,6 @@ module State =
     let wordMap st = st.wordMap
 
 module Scrabble =
-    open System.Threading
-
     //type with direction
     type direction =
         | Up | Down | Left | Right
@@ -160,7 +158,7 @@ module Scrabble =
 
         let rec aux (st: State.state) =
             forcePrint "Current hand: \n"
-            Print.printHand pieces (st.hand)
+            Print.printHand pieces st.hand
             // remove the force print when you move on from manual input (or when you have learnt the format)
             //forcePrint
             //    "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
@@ -189,10 +187,9 @@ module Scrabble =
 
             
             let move =
-                if moves.Length > 0 then
-                    moves[moves.Length-1]
-                else
-                    []
+                match moves.IsEmpty with
+                | false -> moves[moves.Length-1]
+                | true -> []
                     
             let printableWord =
                 (List.fold
@@ -272,7 +269,7 @@ module Scrabble =
                 let st' = st // This state needs to be updated
                 aux st'
             | RCM (CMGameOver _) -> ()
-            | RCM a -> failwith (sprintf "not implmented: %A" a)
+            | RCM a -> failwith (sprintf "not implemented: %A" a)
             | RGPE [(GPENotEnoughPieces (changeTiles, availableTiles))] ->
                 let st' = State.mkState st.board st.dict st.playerNumber st.hand st.wordMap availableTiles
                 aux st'
