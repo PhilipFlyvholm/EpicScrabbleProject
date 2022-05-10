@@ -72,14 +72,14 @@ module Scrabble =
     //type with direction
     type direction =
         | Up | Down | Left | Right
-    let isOtherWordsInTheWay (x,y) (st:State.state) chr =
+    let isOtherWordsInTheWay (x,y) (st:State.state) (chr:char) =
         let rec goBackward dir acc (x', y') =
             let newCoord =
                 match dir with
                 | Up | Down -> (x'-1, y')
                 | Left | Right -> (x', y'-1)
             match st.wordMap.TryFind newCoord with
-            | Some (_, c) -> goBackward dir (acc + string(c)) newCoord
+            | Some (_, c) -> goBackward dir (string(c) + acc) newCoord
             | None -> acc
         let rec goForward dir acc (x', y') =
             let newCoord =
@@ -90,7 +90,9 @@ module Scrabble =
             | Some (_, c) -> goForward dir (acc + string(c)) newCoord
             | None -> acc
         fun dir ->
-            let currentWord = goBackward dir "" (x,y) + string(chr) + goForward dir "" (x,y)
+            let backWord = goBackward dir "" (x,y)
+            let forwardWord = goForward dir "" (x,y)
+            let currentWord = backWord + string(chr) + forwardWord
             if currentWord.Length > 1 && not (currentWord.Equals(string(chr))) then
                 not (Dictionary.lookup currentWord st.dict) //if the word is not in the dictionary, then it is in the way
             else
@@ -194,34 +196,54 @@ module Scrabble =
                         else
                             let result = findBoardMoves st pieces
                             
-                            forcePrint("Result is: " + result.ToString())
                             
                             List.map (fun (item, score) ->
-                                List.map (fun (coord, id, letters) -> coord, (id, letters)) item
+                                List.map (fun (coord, id, letters) ->
+                                    coord, (id, letters)) item
                             ) result
             
             
-            List.fold (fun acc str ->
+            (*List.fold (fun acc str ->
                             debugPrint (sprintf "%A \n" (List.fold
                                                             (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
                                                              "" str
                                                         ))
-                        ) () moves[0..10]
+                        ) () moves[0..10]*)
 
+            let rec auxFindMove i =
+                    let wordsInTheWay =
+                        List.fold (
+                            fun acc ((x,y),(id, (chr, _))) ->
+                                if acc then
+                                    acc
+                                else
+                                    match Map.tryFind (x,y) st.wordMap with
+                                    | Some _ -> true
+                                    | None ->
+                                        let right = isOtherWordsInTheWay (x,y) st chr Right
+                                        let down = isOtherWordsInTheWay (x,y) st chr Down
+                                        right&&down
+                        ) false moves[moves.Length-i]
+                    if wordsInTheWay && moves.Length > i+1 then
+                        auxFindMove (i+1)
+                    else
+                        moves[moves.Length-i]
+                    
             
             let move =
                 if moves.Length > 0 then
-                    moves[moves.Length-1]
+                    auxFindMove 1
                 else
                     []
                     
             let printableWord =
+                
                 (List.fold
                     (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
                      "" move
                 )
             //ENTER MODE = YOU NEED TO PRESS ENTER BETWEEN MOVES TO TEST
-            let enterMode = false
+            let enterMode = true
             
             if(enterMode) then
                 debugPrint (sprintf "Press enter to play %A \n" printableWord)
