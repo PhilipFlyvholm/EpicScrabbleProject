@@ -49,7 +49,7 @@ let main argv =
 
     let dictAPI =
         // Uncomment if you have implemented a dictionary. last element None if you have not implemented a GADDAG
-        Some (Dictionary2.empty, Dictionary2.insert, Dictionary2.step, None) 
+        Some (GaddagDictionary.empty, GaddagDictionary.insert, GaddagDictionary.step, Some GaddagDictionary.reverse) 
 
     let (dictionary, time) = time (fun () -> ScrabbleUtil.Dictionary.mkDict words dictAPI)
 
