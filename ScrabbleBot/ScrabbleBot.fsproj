@@ -18,6 +18,8 @@
   <ItemGroup>
     <Compile Include="Dictionary2.fsi" />
     <Compile Include="Dictionary2.fs" />
+    <Compile Include="DictGaddag.fsi" />
+    <Compile Include="DictGaddag.fs" />
     <Compile Include="MultiSet.fsi" />
     <Compile Include="MultiSet.fs" />
     <Compile Include="FParsecLight.fsi" />
@@ -33,8 +35,13 @@
 
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.1" />
-    <PackageReference Include="ScrabbleUtil" Version="1.0.11" />
     <PackageReference Update="FSharp.Core" Version="6.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ScrabbleUtil, Version=1.0.12.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\dlls\ScrabbleUtil.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
