@@ -302,10 +302,12 @@ module Scrabble =
                 (* Successful play by other player. Update your state *)
                 //TODO UPDATE STATE BOARD
                 let st' = List.fold
-                            (fun (acc: State.state) (coords, (id, (c, v))) ->
+                            (fun (acc: State.state) (coords, (id, (chr, value))) ->
                                 (
                                     //Fold through pieces placed
-                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand acc.wordMap acc.drawableTiles
+                                    let wordMap' = Map.add coords (id, chr) acc.wordMap
+                                    
+                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand wordMap' acc.drawableTiles
                                 )
                             ) st ms
                 
