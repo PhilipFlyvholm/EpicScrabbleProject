@@ -72,7 +72,30 @@ module Scrabble =
     //type with direction
     type direction =
         | Up | Down | Left | Right
-    
+    let isOtherWordsInTheWay (x,y) (st:State.state) chr =
+        let rec goBackward dir acc (x', y') =
+            let newCoord =
+                match dir with
+                | Up | Down -> (x'-1, y')
+                | Left | Right -> (x', y'-1)
+            match st.wordMap.TryFind newCoord with
+            | Some (_, c) -> goBackward dir (acc + string(c)) newCoord
+            | None -> acc
+        let rec goForward dir acc (x', y') =
+            let newCoord =
+                match dir with
+                | Up | Down -> (x'+1, y')
+                | Left | Right -> (x', y'+1)
+            match st.wordMap.TryFind newCoord with
+            | Some (_, c) -> goForward dir (acc + string(c)) newCoord
+            | None -> acc
+        fun dir ->
+            let currentWord = goBackward dir "" (x,y) + string(chr) + goForward dir "" (x,y)
+            if currentWord.Length > 1 && not (currentWord.Equals(string(chr))) then
+                not (Dictionary.lookup currentWord st.dict) //if the word is not in the dictionary, then it is in the way
+            else
+                false //There is nothing in the way
+                
     let findCurrentWordInDirection coord (st:State.state) (dir:direction) : Dictionary.Dict=
         let rec aux (f:Dictionary.Dict -> Dictionary.Dict) ((x,y):coord) (dict:Dictionary.Dict) = 
             let newCoord =
@@ -100,7 +123,7 @@ module Scrabble =
 
         let rec aux (dict: Dictionary.Dict) (chrList: MultiSet.MultiSet<uint32>) (currentItem : ((coord * uint32 * (char * int)) list) * int) ((x,y):coord) =
              MultiSet.fold
-                    (fun acc id amount -> //TODO How should amount be handled?
+                    (fun acc id _ ->
                         
                         //Figure out what piece we have
                         let set = (Map.find id pieces) |> Seq.head
@@ -146,11 +169,11 @@ module Scrabble =
                             
                             let rightAcc = match (Dictionary.step chr rightDict) with
                                             | Some (_, dict) -> findMove st pieces Right (x+1,y) dict 
-                                            | None -> acc
+                                            | None -> []
                             let downAcc =  match (Dictionary.step chr downDict) with
                                             | Some (_, dict) -> findMove st pieces Down (x,y+1) dict 
-                                            | None -> acc
-                            rightAcc @ downAcc                        
+                                            | None -> []
+                            rightAcc @ downAcc @ acc               
                             
                 )) List.empty st.wordMap
         
@@ -228,7 +251,6 @@ module Scrabble =
                              let hand' = MultiSet.removeSingle id acc.hand
                              let wordMap' = Map.add coords (id, chr) acc.wordMap
                              
-                             //TODO UPDATE BOARD
                              //TODO ADD SCORE TO STATE
                              State.mkState acc.board acc.dict acc.playerNumber hand' wordMap'))
                         st
