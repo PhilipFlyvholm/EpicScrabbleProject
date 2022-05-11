@@ -65,6 +65,7 @@ let main argv =
     // Uncomment this line to call your client
     let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
     //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
+    //let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
         
     do ScrabbleServer.Comm.startGame 
           board dictionary handSize timeout tiles seed port players

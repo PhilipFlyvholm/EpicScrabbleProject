@@ -50,14 +50,16 @@ module State =
         { board: Parser.board
           dict: Dictionary.Dict
           playerNumber: uint32
+          playerTurn: uint32
           hand: MultiSet.MultiSet<uint32>
           wordMap: Map<coord, uint32 * char>
           drawableTiles: uint32}
 
-    let mkState b d pn h wm dt =
+    let mkState b d pn h wm dt pt =
         { board = b
           dict = d
           playerNumber = pn
+          playerTurn = pt
           hand = h
           wordMap = wm
           drawableTiles = dt}
@@ -65,6 +67,7 @@ module State =
     let board st = st.board
     let dict st = st.dict
     let playerNumber st = st.playerNumber
+    let playerTurn st = st.playerTurn
     let hand st = st.hand
     let wordMap st = st.wordMap
 
@@ -278,7 +281,7 @@ module Scrabble =
                              let wordMap' = Map.add coords (id, chr) acc.wordMap
                              
                              //TODO ADD SCORE TO STATE
-                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap' acc.drawableTiles))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap' acc.drawableTiles (if acc.playerTurn = 1u then 2u else 1u)))
                         st
                         ms)
                     |> List.fold
@@ -286,7 +289,7 @@ module Scrabble =
                             (
                              //fold through pieces given
                              let hand' = MultiSet.add id amount acc.hand
-                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap acc.drawableTiles))
+                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap acc.drawableTiles acc.playerTurn))
                     <| newPieces
 
                 aux st'
@@ -295,7 +298,7 @@ module Scrabble =
                 
                 let newHand = List.fold (fun acc tile -> MultiSet.addSingle (fst tile) acc) handMinusTiles newTiles
                 
-                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap st.drawableTiles st.playerTurn
                 
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
@@ -307,7 +310,7 @@ module Scrabble =
                                     //Fold through pieces placed
                                     let wordMap' = Map.add coords (id, chr) acc.wordMap
                                     
-                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand wordMap' acc.drawableTiles
+                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand wordMap' acc.drawableTiles (if acc.playerTurn = 1u then 2u else 1u)
                                 )
                             ) st ms
                 
@@ -319,7 +322,7 @@ module Scrabble =
             | RCM (CMGameOver _) -> ()
             | RCM a -> failwith (sprintf "not implemented: %A" a)
             | RGPE [(GPENotEnoughPieces (changeTiles, availableTiles))] ->
-                let st' = State.mkState st.board st.dict st.playerNumber st.hand st.wordMap availableTiles
+                let st' = State.mkState st.board st.dict st.playerNumber st.hand st.wordMap availableTiles st.playerTurn
                 aux st'
             | RGPE err ->
                 printfn "Gameplay Error:\n%A" err
@@ -358,9 +361,7 @@ module Scrabble =
         let dict = dictf false // Uncomment if using a trie for your dictionary
         let board = Parser.mkBoard boardP
 
-        Dictionary2.empty
-
         let handSet =
             List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
 
-        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty 100u)
+        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty 100u playerTurn)
