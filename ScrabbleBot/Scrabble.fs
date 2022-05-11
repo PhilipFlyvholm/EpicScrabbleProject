@@ -222,9 +222,9 @@ module Scrabble =
                                     | None ->
                                         let right = isOtherWordsInTheWay (x,y) st chr Right
                                         let down = isOtherWordsInTheWay (x,y) st chr Down
-                                        right&&down
+                                        right || down
                         ) false moves[moves.Length-i]
-                    if wordsInTheWay && moves.Length > i+1 then
+                    if wordsInTheWay && moves.Length > i then
                         auxFindMove (i+1)
                     else
                         []
