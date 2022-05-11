@@ -1,4 +1,4 @@
-﻿namespace TheCheaterBot
+namespace TheCheaterBot
 
 open ScrabbleBot
 open ScrabbleUtil
@@ -49,15 +49,17 @@ module State =
     type state =
         { board: Parser.board
           dict: Dictionary.Dict
+          numPlayers : uint32
           playerNumber: uint32
-          playerTurn: uint32
+          playerTurn : uint32
           hand: MultiSet.MultiSet<uint32>
           wordMap: Map<coord, uint32 * char>
           drawableTiles: uint32}
 
-    let mkState b d pn h wm dt pt =
+    let mkState b d np pn pt h wm dt =
         { board = b
           dict = d
+          numPlayers = np
           playerNumber = pn
           playerTurn = pt
           hand = h
@@ -182,94 +184,104 @@ module Scrabble =
                             rightAcc @ downAcc @ acc               
                             
                 )) List.empty st.wordMap
+       
+    let updatePlayerTurn (playerTurn : uint32) (playerNumber : uint32) =
+        match playerTurn with
+        | x when x = playerNumber   -> 1u
+        | _                         -> playerTurn + 1u
         
     let playGame cstream pieces (st: State.state) =
-
         let rec aux (st: State.state) =
-            forcePrint "Current hand: \n"
-            Print.printHand pieces st.hand
-            // remove the force print when you move on from manual input (or when you have learnt the format)
-            //forcePrint
-            //    "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
-            
-            let moves = if st.wordMap.Count = 0 then
-                            let result = findMove st pieces Right (0,0) st.dict
-                            List.map (fun (item, score) ->
-                                List.map (fun (coord, id, letters) -> coord, (id, letters)) item
-                            ) result
+        
+            forcePrint ("Current turn: " + st.playerTurn.ToString())
+            let removedTiles = MultiSet.empty
+            if st.playerTurn = st.playerNumber then
+                
+                forcePrint "Current hand: \n"
+                Print.printHand pieces st.hand
+                // remove the force print when you move on from manual input (or when you have learnt the format)
+                //forcePrint
+                //    "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
+                
+                let moves = if st.wordMap.Count = 0 then
+                                let result = findMove st pieces Right (0,0) st.dict
+                                List.map (fun (item, score) ->
+                                    List.map (fun (coord, id, letters) -> coord, (id, letters)) item
+                                ) result
+                            else
+                                let result = findBoardMoves st pieces
+                                
+                                forcePrint("Result is: " + result.ToString())
+                                
+                                List.map (fun (item, score) ->
+                                    List.map (fun (coord, id, letters) -> coord, (id, letters)) item
+                                ) result
+                
+                
+                (*List.fold (fun acc str ->
+                                debugPrint (sprintf "%A \n" (List.fold
+                                                                (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
+                                                                 "" str
+                                                            ))
+                            ) () moves[0..10]*)
+
+                let rec auxFindMove i =
+                        let wordsInTheWay =
+                            List.fold (
+                                fun acc ((x,y),(id, (chr, _))) ->
+                                    if acc then
+                                        acc
+                                    else
+                                        match Map.tryFind (x,y) st.wordMap with
+                                        | Some _ -> true
+                                        | None ->
+                                            let right = isOtherWordsInTheWay (x,y) st chr Right
+                                            let down = isOtherWordsInTheWay (x,y) st chr Down
+                                            right || down
+                            ) false moves[moves.Length-i]
+                        if wordsInTheWay && moves.Length > i then
+                            auxFindMove (i+1)
+                        else if moves.Length <= i then
+                            []
                         else
-                            let result = findBoardMoves st pieces
-                            
-                            forcePrint("Result is: " + result.ToString())
-                            
-                            List.map (fun (item, score) ->
-                                List.map (fun (coord, id, letters) -> coord, (id, letters)) item
-                            ) result
-            
-            
-            (*List.fold (fun acc str ->
-                            debugPrint (sprintf "%A \n" (List.fold
-                                                            (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
-                                                             "" str
-                                                        ))
-                        ) () moves[0..10]*)
-
-            let rec auxFindMove i =
-                    let wordsInTheWay =
-                        List.fold (
-                            fun acc ((x,y),(id, (chr, _))) ->
-                                if acc then
-                                    acc
-                                else
-                                    match Map.tryFind (x,y) st.wordMap with
-                                    | Some _ -> true
-                                    | None ->
-                                        let right = isOtherWordsInTheWay (x,y) st chr Right
-                                        let down = isOtherWordsInTheWay (x,y) st chr Down
-                                        right || down
-                        ) false moves[moves.Length-i]
-                    if wordsInTheWay && moves.Length > i then
-                        auxFindMove (i+1)
-                    else if moves.Length <= i then
-                        []
+                            moves[moves.Length-i]
+                        
+                
+                let move =
+                    if moves.Length > 0 then
+                        auxFindMove 1
                     else
-                        moves[moves.Length-i]
-                    
-            
-            let move =
-                if moves.Length > 0 then
-                    auxFindMove 1
+                        []
+                        
+                let printableWord =
+                    (List.fold
+                        (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
+                         "" move
+                    )
+                //ENTER MODE = YOU NEED TO PRESS ENTER BETWEEN MOVES TO TEST
+                let enterMode = false
+                
+                if(enterMode) then
+                    debugPrint (sprintf "Press enter to play %A \n" printableWord)
+                    let input = System.Console.ReadLine()
+                    ()
+                
+                debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
+                let mutable removedTiles = st.hand
+                if move.Length > 0 then
+                    send cstream (SMPlay move)
                 else
-                    []
-                    
-            let printableWord =
-                (List.fold
-                    (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
-                     "" move
-                )
-            //ENTER MODE = YOU NEED TO PRESS ENTER BETWEEN MOVES TO TEST
-            let enterMode = false
-            
-            if(enterMode) then
-                debugPrint (sprintf "Press enter to play %A \n" printableWord)
-                let input = System.Console.ReadLine()
-                ()
-            
-            debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
-            let mutable removedTiles = st.hand
-            if move.Length > 0 then
-                send cstream (SMPlay move)
-            else
-                 forcePrint "No legal moves!"
-                 if (MultiSet.size st.hand < st.drawableTiles) then
-                    send cstream (SMChange (MultiSet.toList st.hand))
-                 else
-                    removedTiles <- MultiSet.ofList((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)])
-                    send cstream (SMChange (MultiSet.toList(removedTiles)) )
-            
-            let msg = recv cstream
-            debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
+                     forcePrint "No legal moves!"
+                     if (MultiSet.size st.hand < st.drawableTiles) then
+                        send cstream (SMChange (MultiSet.toList st.hand))
+                     else
+                        removedTiles <- MultiSet.ofList((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)])
+                        send cstream (SMChange (MultiSet.toList(removedTiles)) )
 
+                debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
+
+            let msg = recv cstream
+            
             match msg with
             | RCM (CMPlaySuccess (ms, points, newPieces)) ->
                 (* Successful play by you. Update your state (remove old tiles, add the new ones, change turn, etc) *)
@@ -281,9 +293,10 @@ module Scrabble =
                              //Fold through pieces placed
                              let hand' = MultiSet.removeSingle id acc.hand
                              let wordMap' = Map.add coords (id, chr) acc.wordMap
+                             let drawableTiles' = acc.drawableTiles - 1u
                              
                              //TODO ADD SCORE TO STATE
-                             State.mkState acc.board acc.dict acc.playerNumber hand' wordMap' acc.drawableTiles (if acc.playerTurn = 1u then 2u else 1u)))
+                             State.mkState acc.board acc.dict acc.numPlayers acc.playerNumber acc.playerTurn hand' wordMap' drawableTiles'))
                         st
                         ms)
                     |> List.fold
@@ -291,16 +304,17 @@ module Scrabble =
                             (
                              //fold through pieces given
                              let hand' = MultiSet.add id amount acc.hand
-                             State.mkState acc.board acc.dict acc.playerNumber hand' acc.wordMap acc.drawableTiles acc.playerTurn))
+                             State.mkState acc.board acc.dict acc.numPlayers acc.playerNumber acc.playerTurn hand' acc.wordMap acc.drawableTiles))
                     <| newPieces
-
+                
+                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.playerNumber) st'.hand st'.wordMap st'.drawableTiles
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let handMinusTiles = MultiSet.subtract removedTiles st.hand
                 debugPrint (sprintf "New tiles: %A\n" newTiles)
                 let newHand = List.fold (fun acc (tile,amount) -> MultiSet.add tile amount acc) handMinusTiles newTiles
                 
-                let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap st.drawableTiles st.playerTurn
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) newHand st.wordMap st.drawableTiles
                 
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
@@ -312,24 +326,36 @@ module Scrabble =
                                     //Fold through pieces placed
                                     let wordMap' = Map.add coords (id, chr) acc.wordMap
                                     
-                                    State.mkState acc.board acc.dict acc.playerNumber acc.hand wordMap' acc.drawableTiles (if acc.playerTurn = 1u then 2u else 1u)
+                                    State.mkState acc.board acc.dict acc.numPlayers acc.playerNumber acc.playerTurn acc.hand wordMap' acc.drawableTiles
                                 )
                             ) st ms
-                
+                            
+                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.playerNumber) st'.hand st'.wordMap st'.drawableTiles
                 aux st'
             | RCM (CMPlayFailed (pid, ms)) ->
                 (* Failed play. Update your state *)
-                let st' = st // This state needs to be updated
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMGameOver _) -> ()
-            | RCM a -> failwith (sprintf "not implemented: %A" a)
+            | RCM (CMChange(playerId, numberOfTiles)) ->
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                aux st'
+            | RCM (CMForfeit(playerId)) ->
+                let st' = State.mkState st.board st.dict st.numPlayers (st.playerNumber-1u) (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                aux st'
+            | RCM (CMPassed(playerId)) ->
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                aux st'
+            | RCM (CMTimeout(playerId)) ->
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                aux st'
             | RGPE [(GPENotEnoughPieces (changeTiles, availableTiles))] ->
-                let st' = State.mkState st.board st.dict st.playerNumber st.hand st.wordMap availableTiles st.playerTurn
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap availableTiles
                 aux st'
             | RGPE err ->
                 printfn "Gameplay Error:\n%A" err
-                aux st
-
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                aux st'
 
         aux st
 
@@ -366,4 +392,4 @@ module Scrabble =
         let handSet =
             List.fold (fun acc (x, k) -> MultiSet.add x k acc) MultiSet.empty hand
 
-        fun () -> playGame cstream tiles (State.mkState board dict playerNumber handSet Map.empty 100u playerTurn)
+        fun () -> playGame cstream tiles (State.mkState board dict numPlayers playerNumber playerTurn handSet Map.empty 100u)
