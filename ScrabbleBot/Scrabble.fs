@@ -255,7 +255,7 @@ module Scrabble =
                 ()
             
             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
-            let removedTiles = st.hand
+            let mutable removedTiles = st.hand
             if move.Length > 0 then
                 send cstream (SMPlay move)
             else
@@ -263,7 +263,8 @@ module Scrabble =
                  if (MultiSet.size st.hand < st.drawableTiles) then
                     send cstream (SMChange (MultiSet.toList st.hand))
                  else
-                    send cstream (SMChange ((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)]) )
+                    removedTiles <- MultiSet.ofList((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)])
+                    send cstream (SMChange (MultiSet.toList(removedTiles)) )
             
             let msg = recv cstream
             debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
@@ -295,8 +296,8 @@ module Scrabble =
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let handMinusTiles = MultiSet.subtract removedTiles st.hand
-                
-                let newHand = List.fold (fun acc tile -> MultiSet.addSingle (fst tile) acc) handMinusTiles newTiles
+                debugPrint (sprintf "New tiles: %A\n" newTiles)
+                let newHand = List.fold (fun acc (tile,amount) -> MultiSet.add tile amount acc) handMinusTiles newTiles
                 
                 let st' = State.mkState st.board st.dict st.playerNumber newHand st.wordMap st.drawableTiles st.playerTurn
                 
