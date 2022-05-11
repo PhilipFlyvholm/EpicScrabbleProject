@@ -44,7 +44,7 @@ let main argv =
     let handSize   = 7u
     let timeout    = None
     let tiles      = ScrabbleUtil.English.tiles 1u
-    let seed       = None//Some(7634262)
+    let seed       = Some(7634262)
     let port       = 13001
 
     let dictAPI =
@@ -64,8 +64,9 @@ let main argv =
     List.iter (fun str -> ScrabbleUtil.DebugPrint.debugPrint (sprintf "%s\n" str)) incorrectWords
         
     // Uncomment this line to call your client
-    //let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
-    let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
+    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
+    //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
+    //let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
         
     do ScrabbleServer.Comm.startGame 
           board dictionary handSize timeout tiles seed port players
