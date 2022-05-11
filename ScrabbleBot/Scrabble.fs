@@ -129,36 +129,37 @@ module Scrabble =
         let rec aux (dict: Dictionary.Dict) (chrList: MultiSet.MultiSet<uint32>) (currentItem : ((coord * uint32 * (char * int)) list) * int) ((x,y):coord) =
              MultiSet.fold
                     (fun acc id _ ->
+                                   
+                        let preSeq = (Map.find id pieces)
                         
-                        //Figure out what piece we have
-                        let set = (Map.find id pieces) |> Seq.head
-                        let chr = set |> fst
-                        let pointValue = set |> snd
-                        
-                        let nextCoord : coord =
-                            match dir with
-                            | Up -> (x,y-1) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
-                            | Left -> (x-1,y) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
-                            | Right -> (x+1,y)
-                            | Down -> (x,y+1)
-                           
-                        match Map.tryFind nextCoord st.wordMap with
-                            | Some _ -> acc //Can't go further this direction
-                            | None -> 
-                                let innerDict = Dictionary.step chr dict
-                                let newChrList = MultiSet.removeSingle id chrList
-                                
-                                match innerDict with
-                                | Some (isFullWord, newDict) ->
-                                    let currentWord = fst(currentItem)
-                                    let currentScore = snd(currentItem)
-                                    let newWord = (currentWord@[(x,y), id, (chr, pointValue)], currentScore + pointValue)
+                        Seq.fold (fun acc2 (chr, pointValue) ->
+                            
+                            let nextCoord : coord =
+                                match dir with
+                                | Up -> (x,y-1) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
+                                | Left -> (x-1,y) //TODO: This will not work since the word would be in reverse (Gaddag would maybe fix)
+                                | Right -> (x+1,y)
+                                | Down -> (x,y+1)
+                               
+                            match Map.tryFind nextCoord st.wordMap with
+                                | Some _ -> acc //Can't go further this direction
+                                | None -> 
+                                    let innerDict = Dictionary.step chr dict
+                                    let newChrList = MultiSet.removeSingle id chrList
                                     
-                                    if isFullWord then
-                                        newWord::acc@(aux newDict newChrList newWord nextCoord)
-                                    else
-                                        acc@(aux newDict newChrList newWord nextCoord)
-                                | None -> acc
+                                    match innerDict with
+                                    | Some (isFullWord, newDict) ->
+                                        let currentWord = fst(currentItem)
+                                        let currentScore = snd(currentItem)
+                                        let newWord = (currentWord@[(x,y), id, (chr, pointValue)], currentScore + pointValue)
+                                        
+                                        if isFullWord then
+                                            newWord::acc@(aux newDict newChrList newWord nextCoord)
+                                        else
+                                            acc@(aux newDict newChrList newWord nextCoord)
+                                    | None -> acc
+                                
+                        ) List.empty preSeq
                     )
                     List.empty
                     chrList
