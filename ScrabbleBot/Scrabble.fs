@@ -226,8 +226,10 @@ module Scrabble =
                         ) false moves[moves.Length-i]
                     if wordsInTheWay && moves.Length > i then
                         auxFindMove (i+1)
-                    else
+                    else if moves.Length <= i then
                         []
+                    else
+                        moves[moves.Length-i]
                     
             
             let move =
@@ -251,7 +253,7 @@ module Scrabble =
             
             debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
             let removedTiles = st.hand
-            if moves.Length > 0 then
+            if move.Length > 0 then
                 send cstream (SMPlay move)
             else
                  forcePrint "No legal moves!"
