@@ -147,11 +147,9 @@ module internal Parser
     }
     
     let parseSquareProg (sqp: squareProg) : square =
-        Console.WriteLine "let parseSquareProg (sqp: squareProg) : square ="
         Map.map (fun priority str -> stmntToSquareFun (getSuccess(run stmntParse str))) sqp
         
     let stmntToBoardFun stm (m : Map<int, 'a>) : boardFun2 =
-        Console.WriteLine "stmntToBoardFun"
         fun (x,y) ->
             stmntEval stm >>>= lookup "_result_" |> evalSM (
                 mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
@@ -167,7 +165,6 @@ module internal Parser
         (fun (bp : boardProg) ->
             let m = bp.squares
             let m2 = Map.map (fun _ squareProg -> parseSquareProg squareProg) m
-            Console.WriteLine "let defaultSqr = Map.find bp.usedSquare m"
             let defaultSqr = Map.find bp.usedSquare m
             {
                 center = bp.center
