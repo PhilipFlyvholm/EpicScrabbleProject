@@ -15,13 +15,11 @@ module ScrabbleBot.Dictionary2
         
         | Leaf b ->
             let newDict = innerDict()
-            let c = s[0]
-            newDict[c] <- insert s[1..] (empty())
+            newDict[s[0]] <- insert s[1..] (empty())
             Node(b, newDict)
             
         | Node(b, dict) ->
             let c = s[0]
-            
             match dict.TryGetValue c with
             | (true, valu) ->
                 dict[c] <- insert s[1..] valu
