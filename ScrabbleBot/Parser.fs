@@ -116,14 +116,17 @@ module internal Parser
     
     do bAref := choice [trueParse;falseParse;notParse;BoolParParse;isLetterParse;isVowelParse;isDigitParse]
     let BexpParse = BoolTermParse
+
+    
+    let seqParse = binop (pchar ';') StmntParse2 StmntParse1 |>> Seq <?> "Seq"
     
     let assignParse = binop (pstring ":=") pid TermParse |>> Ass <?> "Assign"
     let declareParse = pdeclare >>. whitespaceChar >>. pid |>> Declare <?> "Declare"
-    let seqParse = binop (pchar ';') StmntParse2 StmntParse1 |>> Seq <?> "Seq"
     let curlyBracketParse = curlyBrackets StmntParse1 <?> "CurlyBracketParse"
-    let ifThenElseParse = unop pif (parenthesise BoolTermParse) .>*>. unop pthen curlyBracketParse .>*>. unop pelse StmntParse1 |>> (fun ((bool, ifTrue), ifFalse) -> ITE (bool,ifTrue,ifFalse)) <?> "If-then-else"
+    let ifThenElseParse = unop pif (parenthesise BoolTermParse) .>*>. unop pthen curlyBracketParse .>*>. unop pelse StmntParse2 |>> (fun ((bool, ifTrue), ifFalse) -> ITE (bool,ifTrue,ifFalse)) <?> "If-then-else"
     let ifThenParse = unop pif (parenthesise BoolTermParse) .>*>. unop pthen curlyBracketParse |>> (fun (bool, ifTrue) -> ITE (bool, ifTrue, Skip)) <?> "If-then"
     let whileDoParse = unop pwhile (parenthesise BoolTermParse) .>*>. unop pdo curlyBracketParse |>> While <?> "While-do"
+    
     
     do stmntRef1 := choice [seqParse; StmntParse2]
     do stmntRef2 := choice [assignParse; declareParse;ifThenElseParse;ifThenParse;curlyBracketParse;whileDoParse]
@@ -144,9 +147,11 @@ module internal Parser
     }
     
     let parseSquareProg (sqp: squareProg) : square =
+        Console.WriteLine "let parseSquareProg (sqp: squareProg) : square ="
         Map.map (fun priority str -> stmntToSquareFun (getSuccess(run stmntParse str))) sqp
         
     let stmntToBoardFun stm (m : Map<int, 'a>) : boardFun2 =
+        Console.WriteLine "stmntToBoardFun"
         fun (x,y) ->
             stmntEval stm >>>= lookup "_result_" |> evalSM (
                 mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
@@ -155,13 +160,14 @@ module internal Parser
                 | Failure erro -> Failure erro
                 
     let parseBoardProg = run stmntParse >> getSuccess >> stmntToBoardFun
-
+    
     // Default (unusable) board in case you are not implementing a parser for the DSL.
     let mkBoard : boardProg -> board =
         
         (fun (bp : boardProg) ->
             let m = bp.squares
             let m2 = Map.map (fun _ squareProg -> parseSquareProg squareProg) m
+            Console.WriteLine "let defaultSqr = Map.find bp.usedSquare m"
             let defaultSqr = Map.find bp.usedSquare m
             {
                 center = bp.center
