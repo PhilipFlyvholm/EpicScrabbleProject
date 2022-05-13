@@ -211,7 +211,7 @@ module Scrabble =
                             else
                                 let result = findBoardMoves st pieces
                                 
-                                forcePrint("Result is: " + result.ToString())
+                                debugPrint("Result is: " + result.ToString())
                                 
                                 List.map (fun (item, score) ->
                                     List.map (fun (coord, id, letters) -> coord, (id, letters)) item
@@ -271,7 +271,7 @@ module Scrabble =
                 if move.Length > 0 then
                     send cstream (SMPlay move)
                 else
-                     forcePrint "No legal moves!"
+                     debugPrint "No legal moves!"
                      if (MultiSet.size st.hand < st.drawableTiles) then
                         send cstream (SMChange (MultiSet.toList st.hand))
                      else
