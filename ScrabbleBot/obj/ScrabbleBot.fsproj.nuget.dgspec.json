@@ -43,11 +43,6 @@
               "target": "Package",
               "version": "[6.0.3, )",
               "generatePathProperty": true
-            },
-            "ScrabbleUtil": {
-              "target": "Package",
-              "version": "[1.0.11, )",
-              "generatePathProperty": true
             }
           },
           "imports": [

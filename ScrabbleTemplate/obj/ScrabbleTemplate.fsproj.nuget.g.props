@@ -14,7 +14,7 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">/Users/philipflyvholm/.nuget/packages/fsharp.core/6.0.3</PkgFSharp_Core>
-    <PkgScrabbleServer Condition=" '$(PkgScrabbleServer)' == '' ">/Users/philipflyvholm/.nuget/packages/scrabbleserver/1.0.19</PkgScrabbleServer>
-    <PkgOxyphenbutazone Condition=" '$(PkgOxyphenbutazone)' == '' ">/Users/philipflyvholm/.nuget/packages/oxyphenbutazone/1.0.11</PkgOxyphenbutazone>
+    <PkgFsPickler Condition=" '$(PkgFsPickler)' == '' ">/Users/philipflyvholm/.nuget/packages/fspickler/5.3.2</PkgFsPickler>
+    <PkgFSharp_Quotations_Evaluator Condition=" '$(PkgFSharp_Quotations_Evaluator)' == '' ">/Users/philipflyvholm/.nuget/packages/fsharp.quotations.evaluator/2.1.0</PkgFSharp_Quotations_Evaluator>
   </PropertyGroup>
 </Project>

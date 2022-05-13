@@ -44,7 +44,7 @@ let main argv =
     let handSize   = 7u
     let timeout    = None
     let tiles      = ScrabbleUtil.English.tiles 1u
-    let seed       = Some(7634262)
+    let seed       = None
     let port       = 13001
 
     let dictAPI =
@@ -55,18 +55,19 @@ let main argv =
     let (dictionary, time) = time (fun () -> ScrabbleUtil.Dictionary.mkDict words dictAPI)
 
     // Uncomment to test your dictionary
-    ScrabbleUtil.DebugPrint.debugPrint ("Dictionary test sucessful\n")
+    (*ScrabbleUtil.DebugPrint.debugPrint ("Dictionary test sucessful\n")
     let incorrectWords = ScrabbleUtil.Dictionary.test words 10 (dictionary false) // change to true if using a GADDAG
     match incorrectWords with
     | [] -> ScrabbleUtil.DebugPrint.debugPrint ("Dictionary test sucessful!\n")
     | _  ->
         ScrabbleUtil.DebugPrint.debugPrint ("Dictionary test failed for at least the following words: \n") 
     List.iter (fun str -> ScrabbleUtil.DebugPrint.debugPrint (sprintf "%s\n" str)) incorrectWords
-        
+    *)
     // Uncomment this line to call your client
-    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
+    //let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
     //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
-    //let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
+    let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
+    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame);("OxyphenButazone", dictionary, Oxyphenbutazone.Scrabble.startGame)]
         
     do ScrabbleServer.Comm.startGame 
           board dictionary handSize timeout tiles seed port players

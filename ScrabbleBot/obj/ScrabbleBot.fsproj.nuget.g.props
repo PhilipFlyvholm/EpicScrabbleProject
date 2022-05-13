@@ -14,7 +14,6 @@
   </ItemGroup>
   <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgFSharp_Core Condition=" '$(PkgFSharp_Core)' == '' ">/Users/philipflyvholm/.nuget/packages/fsharp.core/6.0.3</PkgFSharp_Core>
-    <PkgScrabbleUtil Condition=" '$(PkgScrabbleUtil)' == '' ">/Users/philipflyvholm/.nuget/packages/scrabbleutil/1.0.11</PkgScrabbleUtil>
     <PkgFParsec Condition=" '$(PkgFParsec)' == '' ">/Users/philipflyvholm/.nuget/packages/fparsec/1.1.1</PkgFParsec>
   </PropertyGroup>
 </Project>

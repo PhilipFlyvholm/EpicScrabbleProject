@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "xtW3cQeI70iJJJMk487UZJV5y84iVvKnT838CXTnLUCxOfMIWaB51rhnfY6TtU4Q3DsnoixH5RAXmLv4mE1EUA==",
+  "dgSpecHash": "e+8WvL9FHwBnKWIbX00srmvVjyK5AtrvogZHrd1/S7vO7ovdyqTs0e6HVpCLPenQkHRO/I3bMKaeqDwgN1zcaQ==",
   "success": true,
   "projectFilePath": "/Users/philipflyvholm/Documents/Code/ScrabbleTemplate/ScrabbleTemplate/ScrabbleTemplate.fsproj",
   "expectedPackageFiles": [
@@ -10,9 +10,6 @@
     "/Users/philipflyvholm/.nuget/packages/fspickler/5.3.2/fspickler.5.3.2.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/microsoft.netcore.targets/1.1.0/microsoft.netcore.targets.1.1.0.nupkg.sha512",
-    "/Users/philipflyvholm/.nuget/packages/oxyphenbutazone/1.0.11/oxyphenbutazone.1.0.11.nupkg.sha512",
-    "/Users/philipflyvholm/.nuget/packages/scrabbleserver/1.0.19/scrabbleserver.1.0.19.nupkg.sha512",
-    "/Users/philipflyvholm/.nuget/packages/scrabbleutil/1.0.12/scrabbleutil.1.0.12.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.io/4.3.0/system.io.4.3.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.reflection/4.3.0/system.reflection.4.3.0.nupkg.sha512",
     "/Users/philipflyvholm/.nuget/packages/system.reflection.emit.ilgeneration/4.3.0/system.reflection.emit.ilgeneration.4.3.0.nupkg.sha512",
