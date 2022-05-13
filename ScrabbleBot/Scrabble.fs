@@ -185,15 +185,15 @@ module Scrabble =
                             
                 )) List.empty st.wordMap
        
-    let updatePlayerTurn (playerTurn : uint32) (playerNumber : uint32) =
+    let updatePlayerTurn (playerTurn : uint32) (numPlayers : uint32) =
         match playerTurn with
-        | x when x = playerNumber   -> 1u
+        | x when x >= numPlayers   -> 1u
         | _                         -> playerTurn + 1u
         
     let playGame cstream pieces (st: State.state) =
         let rec aux (st: State.state) =
         
-            forcePrint ("Current turn: " + st.playerTurn.ToString())
+            debugPrint (sprintf "Current turn: %d - Says player nr. %d\n" st.playerTurn st.playerNumber)
             let removedTiles = MultiSet.empty
             if st.playerTurn = st.playerNumber then
                 
@@ -307,14 +307,14 @@ module Scrabble =
                              State.mkState acc.board acc.dict acc.numPlayers acc.playerNumber acc.playerTurn hand' acc.wordMap acc.drawableTiles))
                     <| newPieces
                 
-                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.playerNumber) st'.hand st'.wordMap st'.drawableTiles
+                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.numPlayers) st'.hand st'.wordMap st'.drawableTiles
                 aux st'
             | RCM (CMChangeSuccess (newTiles)) ->
                 let handMinusTiles = MultiSet.subtract removedTiles st.hand
                 debugPrint (sprintf "New tiles: %A\n" newTiles)
                 let newHand = List.fold (fun acc (tile,amount) -> MultiSet.add tile amount acc) handMinusTiles newTiles
                 
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) newHand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) newHand st.wordMap st.drawableTiles
                 
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
@@ -330,31 +330,31 @@ module Scrabble =
                                 )
                             ) st ms
                             
-                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.playerNumber) st'.hand st'.wordMap st'.drawableTiles
+                let st' = State.mkState st'.board st'.dict st'.numPlayers st'.playerNumber (updatePlayerTurn st'.playerTurn st'.numPlayers) st'.hand st'.wordMap st'.drawableTiles
                 aux st'
             | RCM (CMPlayFailed (pid, ms)) ->
                 (* Failed play. Update your state *)
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMGameOver _) -> ()
             | RCM (CMChange(playerId, numberOfTiles)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMForfeit(playerId)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers (st.playerNumber-1u) (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers (st.playerNumber-1u) (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMPassed(playerId)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMTimeout(playerId)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RGPE [(GPENotEnoughPieces (changeTiles, availableTiles))] ->
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap availableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap availableTiles
                 aux st'
             | RGPE err ->
                 printfn "Gameplay Error:\n%A" err
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.playerNumber) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
 
         aux st

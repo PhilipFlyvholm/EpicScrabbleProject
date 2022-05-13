@@ -116,48 +116,6 @@
           "lib/netstandard1.0/_._": {}
         }
       },
-      "Oxyphenbutazone/1.0.11": {
-        "type": "package",
-        "dependencies": {
-          "FParsec": "1.1.1",
-          "FSharp.Core": "6.0.3",
-          "ScrabbleServer": "1.0.15"
-        },
-        "compile": {
-          "lib/net6.0/Oxyphenbutazone.dll": {}
-        },
-        "runtime": {
-          "lib/net6.0/Oxyphenbutazone.dll": {}
-        }
-      },
-      "ScrabbleServer/1.0.19": {
-        "type": "package",
-        "dependencies": {
-          "FParsec": "1.1.1",
-          "FSharp.Core": "6.0.3",
-          "ScrabbleUtil": "1.0.12"
-        },
-        "compile": {
-          "lib/net6.0/ScrabbleServer.dll": {}
-        },
-        "runtime": {
-          "lib/net6.0/ScrabbleServer.dll": {}
-        }
-      },
-      "ScrabbleUtil/1.0.12": {
-        "type": "package",
-        "dependencies": {
-          "FSharp.Core": "6.0.3",
-          "FSharp.Quotations.Evaluator": "2.1.0",
-          "FsPickler": "5.3.2"
-        },
-        "compile": {
-          "lib/net6.0/ScrabbleUtil.dll": {}
-        },
-        "runtime": {
-          "lib/net6.0/ScrabbleUtil.dll": {}
-        }
-      },
       "System.IO/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -261,8 +219,7 @@
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
           "FParsec": "1.1.1",
-          "FSharp.Core": "6.0.3",
-          "ScrabbleUtil": "1.0.11"
+          "FSharp.Core": "6.0.3"
         },
         "compile": {
           "bin/placeholder/TheCheaterBot.dll": {}
@@ -401,40 +358,6 @@
         "microsoft.netcore.targets.1.1.0.nupkg.sha512",
         "microsoft.netcore.targets.nuspec",
         "runtime.json"
-      ]
-    },
-    "Oxyphenbutazone/1.0.11": {
-      "sha512": "PW58P5QqJAybiBwHIttYRGhcTwoaaJotgEfrdEQFo3tirlLIfqiPIf4EhBS1WhzeBinFT33KYMb5AMJhD6lHWw==",
-      "type": "package",
-      "path": "oxyphenbutazone/1.0.11",
-      "files": [
-        ".nupkg.metadata",
-        "lib/net6.0/Oxyphenbutazone.dll",
-        "oxyphenbutazone.1.0.11.nupkg.sha512",
-        "oxyphenbutazone.nuspec"
-      ]
-    },
-    "ScrabbleServer/1.0.19": {
-      "sha512": "AOIokWsbCScB7UZEpO1HQZi9nMplT+wHcptXwNo4N0E10XAaMyaeMr8RFFKO3xAFDSzdC+0EeEdL2IRv3YihJg==",
-      "type": "package",
-      "path": "scrabbleserver/1.0.19",
-      "files": [
-        ".nupkg.metadata",
-        "lib/net6.0/ScrabbleServer.dll",
-        "scrabbleserver.1.0.19.nupkg.sha512",
-        "scrabbleserver.nuspec"
-      ]
-    },
-    "ScrabbleUtil/1.0.12": {
-      "sha512": "KoRZyUdi7qaoXoxahRO0bPDJF/zvg4DhuZDPVBgBT9DiBBQKOcsORDplVonJxRJRkRkK6pDmNr7cUzLclTRx3A==",
-      "type": "package",
-      "path": "scrabbleutil/1.0.12",
-      "files": [
-        ".nupkg.metadata",
-        "lib/net6.0/ScrabbleUtil.dll",
-        "lib/net6.0/ScrabbleUtil.xml",
-        "scrabbleutil.1.0.12.nupkg.sha512",
-        "scrabbleutil.nuspec"
       ]
     },
     "System.IO/4.3.0": {
@@ -983,8 +906,8 @@
   "projectFileDependencyGroups": {
     "net6.0": [
       "FSharp.Core >= 6.0.3",
-      "Oxyphenbutazone >= 1.0.11",
-      "ScrabbleServer >= 1.0.19",
+      "FSharp.Quotations.Evaluator >= 2.1.0",
+      "FsPickler >= 5.3.2",
       "TheCheaterBot >= 1.0.1"
     ]
   },
@@ -1030,14 +953,14 @@
             "version": "[6.0.3, )",
             "generatePathProperty": true
           },
-          "Oxyphenbutazone": {
+          "FSharp.Quotations.Evaluator": {
             "target": "Package",
-            "version": "[1.0.11, )",
+            "version": "[2.1.0, )",
             "generatePathProperty": true
           },
-          "ScrabbleServer": {
+          "FsPickler": {
             "target": "Package",
-            "version": "[1.0.19, )",
+            "version": "[5.3.2, )",
             "generatePathProperty": true
           }
         },

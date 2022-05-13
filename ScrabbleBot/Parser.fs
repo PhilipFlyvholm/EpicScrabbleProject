@@ -154,8 +154,8 @@ module internal Parser
             stmntEval stm >>>= lookup "_result_" |> evalSM (
                 mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
                 function
-                | Success numbr -> if Map.containsKey numbr m then Success(Some m.[numbr]) else Success None
-                | Failure erro -> Failure erro
+                | Success n -> if Map.containsKey n m then Success(Some m.[n]) else Success None
+                | Failure e -> Failure e
                 
     let parseBoardProg = run stmntParse >> getSuccess >> stmntToBoardFun
     
