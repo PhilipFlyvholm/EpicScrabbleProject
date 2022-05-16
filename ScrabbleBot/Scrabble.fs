@@ -330,7 +330,7 @@ module Scrabble =
                 aux st'
             | RCM (CMGameOver _) -> ()
             | RCM (CMChange(playerId, numberOfTiles)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
+                let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap (st.drawableTiles-numberOfTiles)
                 aux st'
             | RCM (CMForfeit(playerId)) ->
                 let st' =
