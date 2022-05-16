@@ -1,10 +1,10 @@
-module ScrabbleBot.Dictionary2
+module ScrabbleBot.DictionaryTrie
 
-    type Dictionary2 =
+    type DictionaryTrie =
         | Leaf of bool
-        | Node of bool * System.Collections.Generic.Dictionary<char, Dictionary2>
+        | Node of bool * System.Collections.Generic.Dictionary<char, DictionaryTrie>
 
-    type innerDict = System.Collections.Generic.Dictionary<char, Dictionary2>
+    type innerDict = System.Collections.Generic.Dictionary<char, DictionaryTrie>
     
     let empty (_ : unit) = Leaf false
 

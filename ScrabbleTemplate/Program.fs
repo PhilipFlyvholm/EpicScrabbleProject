@@ -51,7 +51,7 @@ let main argv =
     let dictAPI =
         // Uncomment if you have implemented a dictionary. last element None if you have not implemented a GADDAG
         //Some (GaddagDictionary.empty, GaddagDictionary.insert, GaddagDictionary.step, Some GaddagDictionary.reverse)
-        Some (Dictionary2.empty, Dictionary2.insert, Dictionary2.step, None)
+        Some (DictionaryTrie.empty, DictionaryTrie.insert, DictionaryTrie.step, None)
 
     let (dictionary, time) = time (fun () -> ScrabbleUtil.Dictionary.mkDict words dictAPI)
 
@@ -64,6 +64,7 @@ let main argv =
         ScrabbleUtil.DebugPrint.debugPrint ("Dictionary test failed for at least the following words: \n") 
     List.iter (fun str -> ScrabbleUtil.DebugPrint.debugPrint (sprintf "%s\n" str)) incorrectWords
     *)
+    
     // Uncomment this line to call your client
     let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
     //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2

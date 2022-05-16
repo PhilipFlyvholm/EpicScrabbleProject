@@ -6,7 +6,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Company>IT University of Copenhagen</Company>
 
-    <Version>1.0.1</Version>
+    <Version>2.0.0</Version>
     <PackageId>TheCheaterBot</PackageId>
     <AssemblyName>TheCheaterBot</AssemblyName>
     <Authors>Philip Kristian Møller Flyvholm, Thor Tudal Lauridsen and David Martin Sørensen</Authors>
@@ -16,8 +16,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Dictionary2.fsi" />
-    <Compile Include="Dictionary2.fs" />
+    <Compile Include="DictionaryTrie.fsi" />
+    <Compile Include="DictionaryTrie.fs" />
     <Compile Include="DictGaddag.fsi" />
     <Compile Include="DictGaddag.fs" />
     <Compile Include="MultiSet.fsi" />
