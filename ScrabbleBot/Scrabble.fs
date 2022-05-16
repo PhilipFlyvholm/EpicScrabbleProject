@@ -1,5 +1,6 @@
 namespace TheCheaterBot
 
+open System.Text
 open ScrabbleBot
 open ScrabbleUtil
 open ScrabbleUtil.ServerCommunication
@@ -189,6 +190,15 @@ module Scrabble =
         match playerTurn with
         | x when x >= numPlayers   -> 1u
         | _                         -> playerTurn + 1u
+    
+    let moveToString (move : (coord * (uint32 * (char * int))) list) : string =
+        string (
+                List.fold (
+                    fun (sb : StringBuilder) (value : coord * (uint32 * (char * int)) ) -> sb.Append(fst (snd (snd value)))) 
+                    (StringBuilder())
+                    move
+                )
+        //List.fold (fun acc value -> acc + (fst (snd (snd value))).ToString() ) "" move
         
     let playGame cstream pieces (st: State.state) =
         let rec aux (st: State.state) =
@@ -247,11 +257,7 @@ module Scrabble =
                             moves[moves.Length-i]
                         
                 
-                let move =
-                    if moves.Length > 0 then
-                        auxFindMove 1
-                    else
-                        []
+                let move = auxFindMove 1
                         
                 let printableWord =
                     (List.fold
@@ -269,6 +275,7 @@ module Scrabble =
                 debugPrint (sprintf "Player %d -> Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
                 let mutable removedTiles = st.hand
                 if move.Length > 0 then
+                    debugPrint (sprintf "I am bot %d and I am playing the move %s\n" st.playerNumber (moveToString move))
                     send cstream (SMPlay move)
                 else
                      forcePrint "No legal moves!"
@@ -341,7 +348,13 @@ module Scrabble =
                 let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMForfeit(playerId)) ->
-                let st' = State.mkState st.board st.dict st.numPlayers (st.playerNumber-1u) (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
+                let st' =
+                    if playerId > st.playerNumber then
+                        State.mkState st.board st.dict (st.numPlayers - 1u) (st.playerNumber-1u) st.playerTurn st.hand st.wordMap st.drawableTiles
+                    else if playerId = st.numPlayers then
+                        State.mkState st.board st.dict (st.numPlayers - 1u) (st.playerNumber) 1u st.hand st.wordMap st.drawableTiles
+                    else 
+                        State.mkState st.board st.dict (st.numPlayers - 1u) st.playerNumber st.playerTurn st.hand st.wordMap st.drawableTiles
                 aux st'
             | RCM (CMPassed(playerId)) ->
                 let st' = State.mkState st.board st.dict st.numPlayers st.playerNumber (updatePlayerTurn st.playerTurn st.numPlayers) st.hand st.wordMap st.drawableTiles
@@ -358,6 +371,7 @@ module Scrabble =
                 aux st'
 
         aux st
+
 
     let startGame
         (boardP: boardProg)
