@@ -206,7 +206,6 @@ module Scrabble =
             debugPrint (sprintf "Current turn: %d - Says player nr. %d\n" st.playerTurn st.playerNumber)
             let removedTiles = MultiSet.empty
             if st.playerTurn = st.playerNumber then
-                
                 forcePrint "Current hand: \n"
                 Print.printHand pieces st.hand
                 // remove the force print when you move on from manual input (or when you have learnt the format)
@@ -221,19 +220,11 @@ module Scrabble =
                             else
                                 let result = findBoardMoves st pieces
                                 
-                                forcePrint("Result is: " + result.ToString())
+                                debugPrint("Result is: " + result.ToString())
                                 
                                 List.map (fun (item, score) ->
                                     List.map (fun (coord, id, letters) -> coord, (id, letters)) item
                                 ) result
-                
-                
-                (*List.fold (fun acc str ->
-                                debugPrint (sprintf "%A \n" (List.fold
-                                                                (fun acc (_, (_, (chr, point))) ->  acc + string(chr))
-                                                                 "" str
-                                                            ))
-                            ) () moves[0..10]*)
 
                 let rec auxFindMove i =
                         let wordsInTheWay =
@@ -278,7 +269,7 @@ module Scrabble =
                     debugPrint (sprintf "I am bot %d and I am playing the move %s\n" st.playerNumber (moveToString move))
                     send cstream (SMPlay move)
                 else
-                     forcePrint "No legal moves!"
+                     debugPrint "No legal moves!"
                      if (MultiSet.size st.hand < st.drawableTiles) then
                         send cstream (SMChange (MultiSet.toList st.hand))
                      else
