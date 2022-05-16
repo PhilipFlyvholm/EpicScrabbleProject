@@ -108,7 +108,18 @@ module internal Eval
     | ITE of bExp * stm * stm (* if-then-else statement *)
     | While of bExp * stm     (* while statement *)
 
-    let rec stmntEval stmnt : SM<unit> = failwith "Not implemented"
+    let rec stmntEval stmnt : SM<unit> =
+        match stmnt with
+        | Declare str -> declare(str)
+        | Ass (str, axp) -> arithEval axp >>= update str
+        | Skip -> ret()
+        | Seq (stm1, stm2) -> stmntEval stm1 >>>= stmntEval stm2 >>= (fun result -> ret(result))
+        | ITE (bxp, stm1, stm2) -> push >>>= boolEval bxp >>= fun booler ->
+            if booler then
+                stmntEval stm1
+            else
+                stmntEval stm2 >>>= pop
+        | While (bxp, stm) -> push >>>= boolEval bxp >>= (fun booler -> if booler then stmntEval stm >>>= stmntEval (While (bxp, stm)) else ret()) >>>= pop
 
 (* Part 3 (Optional) *)
 
@@ -165,7 +176,7 @@ module internal Eval
     let charEval2 c = charEval c
     let rec boolEval2 b = boolEval b
 
-    let stmntEval2 stm = failwith "Not implemented"
+    let stmntEval2 stm = stmntEval stm
 
 (* Part 4 *) 
 
@@ -182,15 +193,14 @@ module internal Eval
     type coord = int * int
 
     type boardFun = coord -> Result<squareFun option, Error> 
-    type boardFun2 = coord -> StateMonad.Result<square option, StateMonad.Error>
 
-    let stmntToBoardFun stm (m : Map<int, 'a>) : boardFun2 =
+    let stmntToBoardFun stm (m:Map<int, squareFun>) : boardFun =
         fun (x,y) ->
             stmntEval stm >>>= lookup "_result_" |> evalSM (
                 mkState [("_x_", x); ("_y_", y); ("_result_", 0)] [] ["_x_"; "_y_"; "_result_"]) |>
                 function
-                | Success numbr -> if Map.containsKey numbr m then Success(Some m.[numbr]) else Success None
-                | Failure erro -> Failure erro
+                | Success n -> if Map.containsKey n m then Success(Some m[n]) else Success None
+                | Failure e -> Failure e
 
     type board = {
         center        : coord
@@ -198,4 +208,9 @@ module internal Eval
         squares       : boardFun
     }
 
-    let mkBoard c defaultSq boardStmnt ids = failwith "Not implemented"
+    let mkBoard (c:coord) (defaultSq:stm) (boardStmnt:stm) (ids:(int*stm) list) : board =
+        {
+            center = c
+            defaultSquare = stmntToSquareFun defaultSq
+            squares = stmntToBoardFun boardStmnt (List.map (fun (int, stm) -> (int, stmntToSquareFun stm)) ids |> Map.ofList)
+        }

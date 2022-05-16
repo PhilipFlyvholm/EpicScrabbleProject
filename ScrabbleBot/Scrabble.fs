@@ -198,9 +198,6 @@ module Scrabble =
             if st.playerTurn = st.playerNumber then
                 forcePrint "Current hand: \n"
                 Print.printHand pieces st.hand
-                // remove the force print when you move on from manual input (or when you have learnt the format)
-                //forcePrint
-                //    "Input move (format '(<x-coordinate> <y-coordinate> <piece id><character><point-value> )*', note the absence of space between the last inputs)\n\n"
                 
                 let moves = if st.wordMap.Count = 0 then
                                 let result = findMove st pieces Right (0,0) st.dict
@@ -209,8 +206,6 @@ module Scrabble =
                                 ) result
                             else
                                 let result = findBoardMoves st pieces
-                                
-                                debugPrint("Result is: " + result.ToString())
                                 
                                 List.map (fun (item, score) ->
                                     List.map (fun (coord, id, letters) -> coord, (id, letters)) item
@@ -310,7 +305,6 @@ module Scrabble =
                 aux st'
             | RCM (CMPlayed (pid, ms, points)) ->
                 (* Successful play by other player. Update your state *)
-                //TODO UPDATE STATE BOARD
                 let st' = List.fold
                             (fun (acc: State.state) (coords, (id, (chr, value))) ->
                                 (

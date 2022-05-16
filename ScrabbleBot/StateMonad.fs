@@ -69,7 +69,16 @@ module internal StateMonad
               | Some v -> Success (v, s)
               | None   -> Failure (VarNotFound x))
 
-    let declare (var : string) : SM<unit> = failwith "Not implemented"   
+    let declare (var : string) : SM<unit> =
+        S (fun s ->
+            if Set.contains var s.reserved then
+                Failure(ReservedName var)
+            elif Map.containsKey var s.vars.[0] then
+                Failure(VarExists var)
+            else
+                Success ((), {s with vars = Map.add var 0 s.vars.Head :: s.vars.Tail})
+        )
+
     let update (var : string) (value : int) : SM<unit> =
         let rec aux (s: Map<string,int> list) (i: int): Map<string,int> list -> (Map<string, int> list) Option =
             function

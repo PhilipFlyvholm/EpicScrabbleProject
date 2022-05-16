@@ -159,10 +159,10 @@ module internal Parser
                 
     let parseBoardProg = run stmntParse >> getSuccess >> stmntToBoardFun
     
-    // Default (unusable) board in case you are not implementing a parser for the DSL.
     let mkBoard : boardProg -> board =
         
         (fun (bp : boardProg) ->
+            printf "%A\n" bp.prog
             let m = bp.squares
             let m2 = Map.map (fun _ squareProg -> parseSquareProg squareProg) m
             let defaultSqr = Map.find bp.usedSquare m

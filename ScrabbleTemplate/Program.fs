@@ -21,7 +21,7 @@ let spawnMultiples name dict bot =
 
 [<EntryPoint>]
 let main argv =
-    ScrabbleUtil.DebugPrint.toggleDebugPrint true // Change to false to supress debug output
+    ScrabbleUtil.DebugPrint.toggleDebugPrint false // Change to false to supress debug output
 
     System.Console.BackgroundColor <- System.ConsoleColor.White
     System.Console.ForegroundColor <- System.ConsoleColor.Black
@@ -30,6 +30,7 @@ let main argv =
 
     //let board        = ScrabbleUtil.StandardBoard.standardBoard ()
     let board      = ScrabbleUtil.InfiniteBoard.infiniteBoard ()
+
 
 //    let board      = ScrabbleUtil.RandomBoard.randomBoard ()
 //    let board      = ScrabbleUtil.RandomBoard.randomBoardSeed (Some 42)
@@ -64,10 +65,10 @@ let main argv =
     List.iter (fun str -> ScrabbleUtil.DebugPrint.debugPrint (sprintf "%s\n" str)) incorrectWords
     *)
     // Uncomment this line to call your client
-    //let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
+    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame)]
     //let players = spawnMultiples "OxyphenButazone" dictionary Oxyphenbutazone.Scrabble.startGame 2
     //let players = spawnMultiples "TheCheaterBot" dictionary TheCheaterBot.Scrabble.startGame 2
-    let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame);("OxyphenButazone", dictionary, Oxyphenbutazone.Scrabble.startGame)]
+    //let players    = [("TheCheaterBot", dictionary, TheCheaterBot.Scrabble.startGame);("OxyphenButazone", dictionary, Oxyphenbutazone.Scrabble.startGame)]
         
     do ScrabbleServer.Comm.startGame 
           board dictionary handSize timeout tiles seed port players
