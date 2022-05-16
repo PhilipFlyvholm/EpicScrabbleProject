@@ -222,25 +222,28 @@ module Scrabble =
                                 ) result
 
                 let rec auxFindMove i =
-                        let wordsInTheWay =
-                            List.fold (
-                                fun acc ((x,y),(id, (chr, _))) ->
-                                    if acc then
-                                        acc
-                                    else
-                                        match Map.tryFind (x,y) st.wordMap with
-                                        | Some _ -> true
-                                        | None ->
-                                            let right = isOtherWordsInTheWay (x,y) st chr Right
-                                            let down = isOtherWordsInTheWay (x,y) st chr Down
-                                            right || down
-                            ) false moves[moves.Length-i]
-                        if wordsInTheWay && moves.Length > i then
-                            auxFindMove (i+1)
-                        else if moves.Length <= i then
+                        if List.length moves = 0 then
                             []
                         else
-                            moves[moves.Length-i]
+                            let wordsInTheWay =
+                                List.fold (
+                                    fun acc ((x,y),(id, (chr, _))) ->
+                                        if acc then
+                                            acc
+                                        else
+                                            match Map.tryFind (x,y) st.wordMap with
+                                            | Some _ -> true
+                                            | None ->
+                                                let right = isOtherWordsInTheWay (x,y) st chr Right
+                                                let down = isOtherWordsInTheWay (x,y) st chr Down
+                                                right || down
+                                ) false moves[moves.Length-i]
+                            if moves.Length > i && wordsInTheWay then
+                                auxFindMove (i+1)
+                            else if moves.Length <= i then
+                                []
+                            else
+                                moves[moves.Length-i]
                         
                 
                 let move = auxFindMove 1
@@ -268,11 +271,14 @@ module Scrabble =
                      if (MultiSet.size st.hand < st.drawableTiles) then
                         send cstream (SMChange (MultiSet.toList st.hand))
                      else
+                        debugPrint (sprintf "Amount of drawableTiles is: %d" st.drawableTiles)
                         removedTiles <- MultiSet.ofList((MultiSet.toList st.hand)[0..(int st.drawableTiles - 1)])
                         send cstream (SMChange (MultiSet.toList(removedTiles)) )
 
                 debugPrint (sprintf "Player %d <- Server:\n%A\n" (State.playerNumber st) move) // keep the debug lines. They are useful.
-
+            else if MultiSet.isEmpty st.hand then
+                send cstream (SMPass)
+            
             let msg = recv cstream
             
             match msg with
